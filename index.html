@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiếng Anh Thật Vui - Khóa Học Giao Tiếp Cấp 2 & Cấp 3</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Library -->
+    
+    <!-- 1. BẮT BUỘC: Thư viện Supabase JS SDK (Phải nạp trước config.js để tránh lỗi undefined) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 2. Tệp cấu hình kết nối Supabase -->
+    <script src="config.js"></script>
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -56,7 +62,7 @@
             <div id="loginSection" class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto w-full">
                 <div class="text-center mb-6">
                     <h2 class="text-xl font-bold text-slate-900">Cổng Đăng Nhập Học Viên</h2>
-                    <p class="text-xs text-slate-500 mt-1">Sử dụng Số điện thoại đã đăng ký để vào lớp</p>
+                    <p class="text-xs text-slate-500 mt-1">Sử dụng Số điện thoại/Email đã đăng ký để vào lớp</p>
                 </div>
 
                 <!-- THÔNG BÁO LỖI -->
@@ -64,10 +70,10 @@
 
                 <form onsubmit="handleLogin(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Số điện thoại phụ huynh / học sinh</label>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Số điện thoại / Email đăng ký</label>
                         <div class="relative">
                             <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
-                            <input type="tel" id="phone" required placeholder="0912345678" 
+                            <input type="text" id="phone" required placeholder="0912345678 hoặc email@..." 
                                 class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                         </div>
                     </div>
@@ -100,62 +106,61 @@
         <p>© 2026 Bản quyền thuộc về Tiếng Anh Thật Vui. Vận hành miễn phí trên Cloudflare Pages & Supabase.</p>
     </footer>
 
-    <!-- FILE CẤU HÌNH SUPABASE -->
-    <script src="supabase-config.js"></script>
-
-    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP (TỰ ĐỘNG NỐI ĐUÔI EMAIL ÁO KHÔNG CẦN NGƯỜI DÙNG GÕ) -->
+    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP (TỰ ĐỘNG PHÂN LUỒNG ROLE) -->
     <script>
         lucide.createIcons();
 
-        // 1. Tự động kiểm tra nếu đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
+        // 1. Tự động kiểm tra nếu người dùng đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
         async function checkAutoLogin() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                redirectByRole(session.user.id);
+                await redirectByRole(session.user.id);
             }
         }
 
-        // 2. Hàm đăng nhập
+        // 2. Hàm xử lý đăng nhập
         async function handleLogin(e) {
             e.preventDefault();
-            const rawPhone = document.getElementById('phone').value.trim();
+            const inputVal = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const btnLogin = document.getElementById('btnLogin');
             const errorDiv = document.getElementById('loginError');
 
-            // Tự động chuyển Số Điện Thoại thành Email ảo phía dưới code
-            // Phụ huynh/Học sinh chỉ cần gõ đúng 0912345678!
-            const formattedEmail = `${rawPhone}@tienganhthatvui.com`;
+            // Xử lý linh hoạt: Nếu nhập SĐT thì nối đuôi @tienganhthatvui.com, nếu nhập email thì giữ nguyên
+            let formattedEmail = inputVal;
+            if (!inputVal.includes('@')) {
+                formattedEmail = `${inputVal}@tienganhthatvui.com`;
+            }
 
             btnLogin.innerText = 'Đang xác thực...';
             btnLogin.disabled = true;
             errorDiv.classList.add('hidden');
 
             try {
-                // Xác thực qua Supabase Auth
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                // Xác thực qua Supabase Auth bằng supabaseClient từ config.js
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
                     email: formattedEmail,
                     password: password
                 });
 
                 if (authError) {
-                    throw new Error("Số điện thoại hoặc mật khẩu không chính xác!");
+                    throw new Error("Số điện thoại / Email hoặc mật khẩu không chính xác!");
                 }
 
                 // Chuyển hướng theo vai trò (role)
                 await redirectByRole(authData.user.id);
 
             } catch (err) {
-                errorDiv.innerText = err.message;
+                errorDiv.innerText = err.message || "Đã xảy ra lỗi khi đăng nhập!";
                 errorDiv.classList.remove('hidden');
                 btnLogin.innerText = 'Đăng Nhập Vào Học';
                 btnLogin.disabled = false;
             }
         }
 
-        // 3. Hàm phân luồng điều hướng dựa vào bảng profiles
+        // 3. Hàm phân luồng điều hướng dựa vào quyền (role) trong bảng profiles
         async function redirectByRole(userId) {
-            const { data: profile, error } = await supabase
+            const { data: profile, error } = await supabaseClient
                 .from('profiles')
                 .select('role, is_active, is_deleted')
                 .eq('id', userId)
@@ -163,12 +168,19 @@
 
             if (error || !profile || profile.is_deleted) {
                 alert("Tài khoản không tồn tại hoặc đã bị ẩn khỏi hệ thống!");
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 location.reload();
                 return;
             }
 
-            // Điều hướng chuẩn vai trò
+            if (profile.is_active === false) {
+                alert("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ Admin!");
+                await supabaseClient.auth.signOut();
+                location.reload();
+                return;
+            }
+
+            // Điều hướng chuẩn theo vai trò
             if (profile.role === 'admin') {
                 window.location.href = 'admin.html';
             } else if (profile.role === 'teacher') {
@@ -178,6 +190,7 @@
             }
         }
 
+        // Chạy kiểm tra phiên đăng nhập tự động
         checkAutoLogin();
     </script>
 </body>
