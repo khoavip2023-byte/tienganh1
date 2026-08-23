@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Anh Thật Vui - Khóa Học Giao Tiếp Cấp 2 & Cấp 3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- THANH NAV TRÊN CÙNG -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-blue-600 text-white p-2 rounded-xl">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg text-slate-900 block leading-tight">tienganhthatvui.com</span>
+                    <span class="text-xs text-blue-600 font-semibold">Chương Trình Giao Tiếp Quốc Tế</span>
+                </div>
+            </div>
+            <a href="#loginSection" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold px-4 py-2 rounded-xl text-sm transition">
+                Đăng Nhập
+            </a>
+        </div>
+    </header>
+
+    <!-- KHU VỰC HERO / QUẢNG BÁ KHÓA HỌC -->
+    <main class="max-w-6xl mx-auto px-4 py-10 space-y-12 flex-1">
+        
+        <section class="grid md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4 text-center md:text-left">
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Dành Cho Học Sinh Cấp 2 & Cấp 3
+                </span>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+                    Bứt Phá Phản Xạ <br><span class="text-blue-600">Tiếng Anh Giao Tiếp</span>
+                </h1>
+                <p class="text-slate-600 text-sm md:text-base">
+                    Luyện phản xạ thực chiến với Giáo viên Nước ngoài. Mô hình học tập hiện đại, theo sát tiến độ từng bài tập và nhận video sửa lỗi chi tiết 1-1.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-4 justify-center md:justify-start text-xs font-semibold text-slate-600">
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Lịch học Zoom tương tác</span>
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Sửa bài tập Drive 1-1</span>
+                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Nhận xét Video hàng tháng</span>
+                </div>
+            </div>
+
+            <!-- FORM ĐĂNG NHẬP -->
+            <div id="loginSection" class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto w-full">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-900">Cổng Đăng Nhập Học Viên</h2>
+                    <p class="text-xs text-slate-500 mt-1">Sử dụng Số điện thoại đã đăng ký để vào lớp</p>
+                </div>
+
+                <!-- THÔNG BÁO LỖI -->
+                <div id="loginError" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl font-medium"></div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Số điện thoại phụ huynh / học sinh</label>
+                        <div class="relative">
+                            <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="tel" id="phone" required placeholder="0912345678" 
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Mật khẩu</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
+                            <input type="password" id="password" required placeholder="••••••••" 
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/20 text-sm">
+                        Đăng Nhập Vào Học
+                    </button>
+                </form>
+                
+                <p class="text-center text-xs text-slate-400 mt-4">
+                    Quên mật khẩu hoặc cần hỗ trợ? Vui lòng liên hệ Hotline/Zalo của trung tâm.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER TINH GỌN -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 space-y-1">
+        <p class="font-semibold text-slate-700">Hệ Thống Quản Lý Học Tập LMS - tienganhthatvui.com</p>
+        <p>© 2026 Bản quyền thuộc về Tiếng Anh Thật Vui. Vận hành miễn phí trên Cloudflare Pages & Supabase.</p>
+    </footer>
+
+    <!-- FILE CẤU HÌNH SUPABASE -->
+    <script src="supabase-config.js"></script>
+
+    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP (TỰ ĐỘNG NỐI ĐUÔI EMAIL ÁO KHÔNG CẦN NGƯỜI DÙNG GÕ) -->
+    <script>
+        lucide.createIcons();
+
+        // 1. Tự động kiểm tra nếu đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
+        async function checkAutoLogin() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                redirectByRole(session.user.id);
+            }
+        }
+
+        // 2. Hàm đăng nhập
+        async function handleLogin(e) {
+            e.preventDefault();
+            const rawPhone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const btnLogin = document.getElementById('btnLogin');
+            const errorDiv = document.getElementById('loginError');
+
+            // Tự động chuyển Số Điện Thoại thành Email ảo phía dưới code
+            // Phụ huynh/Học sinh chỉ cần gõ đúng 0912345678!
+            const formattedEmail = `${rawPhone}@tienganhthatvui.com`;
+
+            btnLogin.innerText = 'Đang xác thực...';
+            btnLogin.disabled = true;
+            errorDiv.classList.add('hidden');
+
+            try {
+                // Xác thực qua Supabase Auth
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: formattedEmail,
+                    password: password
+                });
+
+                if (authError) {
+                    throw new Error("Số điện thoại hoặc mật khẩu không chính xác!");
+                }
+
+                // Chuyển hướng theo vai trò (role)
+                await redirectByRole(authData.user.id);
+
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                errorDiv.classList.remove('hidden');
+                btnLogin.innerText = 'Đăng Nhập Vào Học';
+                btnLogin.disabled = false;
+            }
+        }
+
+        // 3. Hàm phân luồng điều hướng dựa vào bảng profiles
+        async function redirectByRole(userId) {
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('role, is_active, is_deleted')
+                .eq('id', userId)
+                .single();
+
+            if (error || !profile || profile.is_deleted) {
+                alert("Tài khoản không tồn tại hoặc đã bị ẩn khỏi hệ thống!");
+                await supabase.auth.signOut();
+                location.reload();
+                return;
+            }
+
+            // Điều hướng chuẩn vai trò
+            if (profile.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else if (profile.role === 'teacher') {
+                window.location.href = 'teacher.html';
+            } else if (profile.role === 'student') {
+                window.location.href = 'hocsinh.html';
+            }
+        }
+
+        checkAutoLogin();
+    </script>
+</body>
+</html>

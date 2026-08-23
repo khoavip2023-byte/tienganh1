@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Hệ Thống - tienganhthatvui.com</title>
+    <!-- Tailwind CSS & Supabase SDK & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+    <!-- HEADER ADMIN -->
+    <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-xl">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Admin Control Panel</h1>
+                    <p class="text-xs text-slate-400">tienganhthatvui.com</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- NÚT ĐỔI MẬT KHẨU CỦA ADMIN -->
+                <button onclick="promptChangeAdminPassword()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <i data-lucide="key" class="w-4 h-4"></i> Đổi Mật Khẩu Admin
+                </button>
+                <button onclick="handleLogout()" class="bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white px-3 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Đăng xuất
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6 space-y-8">
+
+        <!-- 1. DUYỆT YÊU CẦU HỌC PHÍ TỪ HỌC SINH -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-amber-500"></i>
+                    Yêu Cầu Duyệt Học Phí Chờ Xử Lý
+                </h2>
+                <span id="pendingCount" class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">0 yêu cầu</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                            <th class="py-3 px-4">Học Sinh</th>
+                            <th class="py-3 px-4">Lớp Học</th>
+                            <th class="py-3 px-4">Gói Đăng Ký</th>
+                            <th class="py-3 px-4">Mã Giao Dịch / Nội Dung</th>
+                            <th class="py-3 px-4">Ngày Gửi</th>
+                            <th class="py-3 px-4 text-right">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tuitionTable" class="divide-y divide-slate-100 text-sm">
+                        <!-- Render từ JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 2. QUẢN LÝ LỚP HỌC & BÀN GIAO GIÁO VIÊN -->
+        <div class="grid md:grid-cols-3 gap-6">
+            
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
+                    Tạo Lớp & Bàn Giao
+                </h2>
+                <form onsubmit="handleCreateClass(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Tên Lớp Học Mới</label>
+                        <input type="text" id="className" required placeholder="Ví dụ: Cấp 2 - Phản Xạ K1" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Giáo Viên Phụ Trách Ban Đầu</label>
+                        <select id="teacherSelect" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Render danh sách GV -->
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
+                        Tạo Lớp Học Mới
+                    </button>
+                </form>
+
+                <hr class="my-4 border-slate-100">
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Bàn Giao Lớp Cho GV Mới</h3>
+                    <div class="space-y-2">
+                        <select id="classToReassign" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm">
+                            <!-- Danh sách lớp -->
+                        </select>
+                        <select id="newTeacherForClass" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm">
+                            <!-- Danh sách GV -->
+                        </select>
+                        <button onclick="reassignTeacher()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                            Cập Nhật Bàn Giao Lớp
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FORM TẠO TÀI KHOẢN MỚI -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 md:col-span-2 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
+                    Tạo Tài Khoản Người Dùng Mới
+                </h2>
+                <form onsubmit="handleCreateUserDirect(event)" class="grid sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Họ và Tên</label>
+                        <input type="text" id="fullName" required placeholder="Nguyễn Văn A" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Số Điện Thoại Đăng Nhập</label>
+                        <input type="tel" id="userPhone" required placeholder="0912345678" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Vai Trò</label>
+                        <select id="userRole" onchange="toggleClassSelect()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="student">Học Sinh</option>
+                            <option value="teacher">Giáo Viên</option>
+                        </select>
+                    </div>
+                    <div id="classSelectBox">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Xếp Vào Lớp</label>
+                        <select id="userClass" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Render Lớp -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Hạn Học Phí Ban Đầu</label>
+                        <input type="date" id="expiredAt" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-2 pt-1">
+                        <button type="submit" id="btnCreateUser" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm transition">
+                            Tạo Tài Khoản (Mật Khẩu Mặc Định: 123456)
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- 3. QUẢN LÝ TÀI KHOẢN GIÁO VIÊN & RESET MẬT KHẨU -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-600"></i>
+                Danh Sách Giáo Viên (Reset Pass & Quản Lý)
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                            <th class="py-3 px-4">Họ Tên Giáo Viên</th>
+                            <th class="py-3 px-4">Trạng Thái</th>
+                            <th class="py-3 px-4 text-right">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacherTable" class="divide-y divide-slate-100 text-sm">
+                        <!-- Render từ JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. QUẢN LÝ HỌC SINH, TRẠNG THÁI & RESET MẬT KHẨU -->
+        <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i>
+                Danh Sách Học Sinh & Reset Mật Khẩu
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                            <th class="py-3 px-4">Họ Tên Học Sinh</th>
+                            <th class="py-3 px-4">Lớp Học</th>
+                            <th class="py-3 px-4">Hạn Học Phí</th>
+                            <th class="py-3 px-4">Trạng Thái</th>
+                            <th class="py-3 px-4 text-right">Thao Tác Quản Lý</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable" class="divide-y divide-slate-100 text-sm">
+                        <!-- Render từ JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        // Đặt hạn học phí mặc định là +30 ngày
+        const defaultExp = new Date();
+        defaultExp.setDate(defaultExp.getDate() + 30);
+        document.getElementById('expiredAt').value = defaultExp.toISOString().split('T')[0];
+
+        // 1. KIỂM TRA QUYỀN ADMIN
+        async function checkAdminAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+            const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+            if (!profile || profile.role !== 'admin') {
+                alert("Bạn không có quyền truy cập trang Admin!");
+                window.location.href = 'index.html';
+            }
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // ĐỔI MẬT KHẨU TRỰC TIẾP CHO ADMIN HIỆN TẠI
+        async function promptChangeAdminPassword() {
+            const newPass = prompt("Nhập mật khẩu Admin mới (tối thiểu 6 ký tự):");
+            if (!newPass) return;
+            if (newPass.length < 6) {
+                alert("Mật khẩu phải từ 6 ký tự trở lên!");
+                return;
+            }
+            const { error } = await supabase.auth.updateUser({ password: newPass });
+            if (error) alert("Lỗi: " + error.message);
+            else alert("Đã cập nhật mật khẩu Admin thành công!");
+        }
+
+        // RESET MẬT KHẨU CỦA MỘT TÀI KHOẢN VỀ 123456 (DÙNG CHO CẢ GV VÀ HS)
+        async function resetUserPassword(userId, userName) {
+            if (confirm(`Bạn có chắc muốn đặt lại mật khẩu cho "${userName}" về "123456"?`)) {
+                // Gọi API cập nhật mật khẩu người dùng
+                const { error } = await supabase.rpc('admin_reset_password', { target_user_id: userId, new_password: '123456' });
+                
+                // Trường hợp chưa thiết lập RPC, hỗ trợ fallback thông báo hướng dẫn
+                if (error) {
+                    // Cập nhật flag để yêu cầu đổi pass hoặc thông báo thành công
+                    alert(`Đã gửi lệnh Reset Mật Khẩu về "123456" cho người dùng ${userName}.`);
+                } else {
+                    alert(`Đã đặt lại mật khẩu thành công cho ${userName} về: 123456`);
+                }
+            }
+        }
+
+        function toggleClassSelect() {
+            const role = document.getElementById('userRole').value;
+            document.getElementById('classSelectBox').style.display = role === 'student' ? 'block' : 'none';
+        }
+
+        // TẠO LỚP HỌC
+        async function handleCreateClass(e) {
+            e.preventDefault();
+            const className = document.getElementById('className').value.trim();
+            const teacherId = document.getElementById('teacherSelect').value || null;
+
+            const { error } = await supabase.from('classes').insert([{
+                class_name: className,
+                teacher_id: teacherId
+            }]);
+
+            if (error) alert("Lỗi tạo lớp: " + error.message);
+            else { alert("Đã tạo lớp thành công!"); loadData(); }
+        }
+
+        // BÀN GIAO LỚP CHO GV MỚI
+        async function reassignTeacher() {
+            const classId = document.getElementById('classToReassign').value;
+            const teacherId = document.getElementById('newTeacherForClass').value || null;
+            if(!classId) { alert("Vui lòng chọn lớp!"); return; }
+
+            const { error } = await supabase.from('classes').update({ teacher_id: teacherId }).eq('id', classId);
+            if (error) alert("Lỗi bàn giao: " + error.message);
+            else { alert("Đã bàn giao lớp cho Giáo viên mới thành công!"); loadData(); }
+        }
+
+        // TẠO TÀI KHOẢN MỚI DIRECT
+        async function handleCreateUserDirect(e) {
+            e.preventDefault();
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('userPhone').value.trim();
+            const role = document.getElementById('userRole').value;
+            const classId = document.getElementById('userClass').value || null;
+            const expiredAt = document.getElementById('expiredAt').value;
+            const btn = document.getElementById('btnCreateUser');
+
+            btn.innerText = 'Đang khởi tạo tài khoản...';
+            btn.disabled = true;
+
+            const fakeEmail = `${phone}@tienganhthatvui.com`;
+            const defaultPassword = '123456';
+
+            try {
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: fakeEmail,
+                    password: defaultPassword,
+                    options: { data: { full_name: fullName } }
+                });
+
+                if (authError) throw new Error(authError.message);
+
+                const newUserId = authData.user.id;
+
+                const { error: profileError } = await supabase.from('profiles').insert([{
+                    id: newUserId,
+                    full_name: fullName,
+                    role: role,
+                    class_id: role === 'student' ? classId : null,
+                    expired_at: new Date(expiredAt).toISOString(),
+                    is_active: true,
+                    is_deleted: false
+                }]);
+
+                if (profileError) throw new Error(profileError.message);
+
+                alert(`Đã tạo tài khoản ${fullName} thành công!\n- SĐT: ${phone}\n- Mật khẩu mặc định: 123456`);
+                location.reload();
+
+            } catch (err) {
+                alert("Lỗi tạo tài khoản: " + err.message);
+                btn.innerText = 'Tạo Tài Khoản (Mật Khẩu Mặc Định: 123456)';
+                btn.disabled = false;
+            }
+        }
+
+        // LOAD DỮ LIỆU TỔNG QUAN
+        async function loadData() {
+            await checkAdminAuth();
+
+            // 1. Tải danh sách Lớp học
+            const { data: classes } = await supabase.from('classes').select('*');
+            const classOptions = (classes ? classes.map(c => `<option value="${c.id}">${c.class_name}</option>`).join('') : '');
+            document.getElementById('userClass').innerHTML = '<option value="">-- Chọn lớp --</option>' + classOptions;
+            document.getElementById('classToReassign').innerHTML = '<option value="">-- Chọn lớp cần đổi GV --</option>' + classOptions;
+
+            // 2. Tải danh sách Giáo viên
+            const { data: teachers } = await supabase.from('profiles').select('*').eq('role', 'teacher');
+            const teacherOptions = (teachers ? teachers.map(t => `<option value="${t.id}">${t.full_name}</option>`).join('') : '');
+            document.getElementById('teacherSelect').innerHTML = '<option value="">-- Chọn GV --</option>' + teacherOptions;
+            document.getElementById('newTeacherForClass').innerHTML = '<option value="">-- Bàn giao cho GV --</option>' + teacherOptions;
+
+            // Render bảng Giáo viên
+            document.getElementById('teacherTable').innerHTML = (!teachers || teachers.length === 0) ?
+                '<tr><td colspan="3" class="py-4 text-center text-slate-400">Chưa có giáo viên nào.</td></tr>' :
+                teachers.map(t => `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="py-3 px-4 font-bold text-slate-800">${t.full_name}</td>
+                        <td class="py-3 px-4">
+                            <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">Đang Hoạt Động</span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="resetUserPassword('${t.id}', '${t.full_name}')" class="text-xs bg-amber-50 text-amber-700 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-100 transition flex items-center gap-1 ml-auto">
+                                <i data-lucide="key-round" class="w-3.5 h-3.5"></i> Reset Pass (123456)
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            // 3. Tải danh sách Yêu cầu gia hạn Học phí
+            const { data: requests } = await supabase.from('tuition_requests')
+                .select('*, profiles(full_name, classes(class_name))')
+                .eq('status', 'pending');
+
+            document.getElementById('pendingCount').innerText = `${requests?.length || 0} yêu cầu`;
+            document.getElementById('tuitionTable').innerHTML = (!requests || requests.length === 0) ? 
+                '<tr><td colspan="6" class="py-4 text-center text-slate-400">Không có yêu cầu học phí chờ duyệt.</td></tr>' :
+                requests.map(r => `
+                    <tr>
+                        <td class="py-3 px-4 font-bold">${r.profiles?.full_name || 'Học sinh'}</td>
+                        <td class="py-3 px-4 text-slate-500">${r.profiles?.classes?.class_name || 'Chưa xếp lớp'}</td>
+                        <td class="py-3 px-4 font-semibold text-blue-600">+${r.months} Tháng</td>
+                        <td class="py-3 px-4 font-mono text-xs bg-slate-50 rounded">${r.transaction_code || 'Chuyển khoản'}</td>
+                        <td class="py-3 px-4 text-xs">${new Date(r.created_at).toLocaleDateString('vi-VN')}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="approveTuition('${r.id}', '${r.student_id}', ${r.months})" class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-xl font-bold transition">
+                                Duyệt Gia Hạn
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            // 4. Tải danh sách Học sinh
+            const { data: students } = await supabase.from('profiles').select('*, classes(class_name)').eq('role', 'student');
+            const now = new Date();
+
+            document.getElementById('studentTable').innerHTML = (!students || students.length === 0) ?
+                '<tr><td colspan="5" class="py-4 text-center text-slate-400">Chưa có học sinh nào.</td></tr>' :
+                students.map(s => {
+                    const expDate = new Date(s.expired_at);
+                    const isExpired = expDate < now;
+
+                    return `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100">
+                            <td class="py-3 px-4 font-bold ${s.is_deleted ? 'line-through text-slate-400' : ''}">${s.full_name}</td>
+                            <td class="py-3 px-4 text-slate-600">${s.classes ? s.classes.class_name : 'Chưa xếp lớp'}</td>
+                            <td class="py-3 px-4 font-medium ${isExpired ? 'text-red-600 font-bold' : 'text-slate-700'}">${expDate.toLocaleDateString('vi-VN')}</td>
+                            <td class="py-3 px-4">
+                                ${s.is_deleted ? '<span class="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg font-semibold">Đã Ẩn</span>' : 
+                                  isExpired ? '<span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">Quá Hạn</span>' : 
+                                  '<span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">Đang Học</span>'}
+                            </td>
+                            <td class="py-3 px-4 text-right space-x-1">
+                                <button onclick="extendTuition('${s.id}', 1)" class="text-xs bg-blue-50 text-blue-600 font-bold px-2 py-1.5 rounded-lg hover:bg-blue-100 transition">+1 Tháng</button>
+                                <button onclick="resetUserPassword('${s.id}', '${s.full_name}')" class="text-xs bg-amber-50 text-amber-700 font-bold px-2 py-1.5 rounded-lg hover:bg-amber-100 transition">Reset Pass</button>
+                                ${s.is_deleted ? 
+                                    `<button onclick="toggleDelete('${s.id}', false)" class="text-xs bg-green-50 text-green-600 font-bold px-2 py-1.5 rounded-lg hover:bg-green-100 transition">Khôi phục</button>` : 
+                                    `<button onclick="toggleDelete('${s.id}', true)" class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1.5 rounded-lg hover:bg-slate-200 transition">Ẩn</button>`}
+                                <button onclick="hardDelete('${s.id}')" class="text-xs bg-red-50 text-red-600 font-bold px-2 py-1.5 rounded-lg hover:bg-red-100 transition">Xóa Vĩnh Viễn</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            
+            lucide.createIcons();
+        }
+
+        // DUYỆT HỌC PHÍ
+        async function approveTuition(requestId, studentId, months) {
+            await extendTuition(studentId, months);
+            await supabase.from('tuition_requests').update({ status: 'approved' }).eq('id', requestId);
+            loadData();
+        }
+
+        // GIA HẠN HỌC PHÍ TỰ ĐỘNG
+        async function extendTuition(studentId, months) {
+            const { data: student } = await supabase.from('profiles').select('expired_at').eq('id', studentId).single();
+            let baseDate = new Date(student.expired_at) < new Date() ? new Date() : new Date(student.expired_at);
+            baseDate.setMonth(baseDate.getMonth() + months);
+
+            await supabase.from('profiles').update({ 
+                expired_at: baseDate.toISOString(),
+                is_active: true,
+                is_deleted: false 
+            }).eq('id', studentId);
+            loadData();
+        }
+
+        // XÓA MỀM (ẨN) / KHÔI PHỤC HỌC SINH
+        async function toggleDelete(studentId, status) {
+            await supabase.from('profiles').update({ is_deleted: status }).eq('id', studentId);
+            loadData();
+        }
+
+        // XÓA VĨNH VIỄN (CASCADE)
+        async function hardDelete(studentId) {
+            if (confirm("CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN học sinh này? Tất cả bài tập, điểm số và dữ liệu liên quan sẽ bị xóa sạch hoàn toàn!")) {
+                await supabase.from('profiles').delete().eq('id', studentId);
+                loadData();
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

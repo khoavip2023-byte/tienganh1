@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao Diện Giáo Viên - tienganhthatvui.com</title>
+    <!-- Tailwind CSS & Supabase SDK & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+    <!-- HEADER GIÁO VIÊN -->
+    <header class="bg-indigo-900 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-xl">
+                    <i data-lucide="graduation-cap" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 id="teacherNameHeader" class="font-bold text-base md:text-lg leading-tight">Giáo Viên</h1>
+                    <p class="text-xs text-indigo-300">Cổng Quản Lý Lớp Học & Chấm Điểm</p>
+                </div>
+            </div>
+
+            <!-- BỘ CHỌN LỚP HỌC ĐANG DẠY (DÀNH CHO GV DẠY 4-5 LỚP) -->
+            <div class="flex items-center gap-2 bg-indigo-950/60 px-3 py-1.5 rounded-xl border border-indigo-700/50">
+                <i data-lucide="users" class="w-4 h-4 text-indigo-300"></i>
+                <span class="text-xs font-semibold text-indigo-200 whitespace-nowrap">Đang chọn lớp:</span>
+                <select id="teacherClassSelect" onchange="handleClassChange()" class="bg-indigo-800 text-white text-xs font-bold px-2.5 py-1 rounded-lg border border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <option value="">-- Đang tải danh sách lớp... --</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- NÚT ĐỔI MẬT KHẨU GIÁO VIÊN -->
+                <button onclick="promptChangePassword()" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 border border-indigo-700 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <i data-lucide="key" class="w-3.5 h-3.5"></i> Đổi mật khẩu
+                </button>
+                <button onclick="handleLogout()" class="bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Đăng xuất
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-6 space-y-8">
+
+        <!-- THÔNG BÁO NẾU CHƯA ĐƯỢC PHÂN LỚP NÀO -->
+        <div id="noClassAlert" class="hidden bg-amber-500 text-white p-4 rounded-2xl shadow-md text-center">
+            <p class="font-bold text-sm">Tài khoản chưa được phân công phụ trách lớp học nào!</p>
+            <p class="text-xs text-amber-100 mt-1">Vui lòng liên hệ Ban Quản Trị (Admin) để bàn giao lớp.</p>
+        </div>
+
+        <div id="teacherMainContent" class="space-y-8">
+
+            <!-- 1. CẬP NHẬT LỊCH HỌC ZOOM HÔM NAY THEO LỚP ĐANG CHỌN -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="video" class="w-5 h-5 text-indigo-600"></i>
+                        Cập Nhật Lịch Học Zoom Hôm Nay
+                    </h2>
+                    <span id="currentClassNameDisplay" class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg">Lớp: --</span>
+                </div>
+
+                <form onsubmit="handleUpdateZoom(event)" class="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Giờ Học</label>
+                        <input type="text" id="zoomTime" required placeholder="Ví dụ: 19:30 - 21:00" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Mã Zoom (Meeting ID)</label>
+                        <input type="text" id="zoomId" required placeholder="829 1234 5678" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Mật Khẩu (Passcode)</label>
+                        <input type="text" id="zoomPass" required placeholder="123456" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Link Tham Gia Trực Tiếp</label>
+                        <input type="url" id="zoomLink" required placeholder="https://zoom.us/j/..." 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2 md:col-span-4 pt-1">
+                        <button type="submit" id="btnSaveZoom" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
+                            Lưu Lịch Học Zoom Hôm Nay Cho Lớp Này
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 2. QUẢN LÝ BÀI TẬP VÀ BẢNG CHẤM ĐIỂM -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="check-square" class="w-5 h-5 text-blue-600"></i>
+                            Bảng Chấm Điểm Bài Tập
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Tự động xám danh sách học sinh trễ phí từ 1-7 ngày. Tự động ẩn quá 7 ngày.</p>
+                    </div>
+
+                    <!-- BỘ LỌC BÀI TẬP -->
+                    <div class="flex items-center gap-2">
+                        <select id="assignmentSelect" onchange="loadSubmissionsForGrading()" class="px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                            <!-- Render danh sách bài tập của lớp đang chọn -->
+                        </select>
+                        <button onclick="promptCreateAssignment()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 whitespace-nowrap">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Tạo Bài Tập Mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BẢNG DANH SÁCH HỌC SINH VÀ CHẤM ĐIỂM HÀNG LOẠT -->
+                <form onsubmit="handleSaveAllGrades(event)">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                    <th class="py-3 px-4">Họ Tên Học Sinh</th>
+                                    <th class="py-3 px-4">Bài Làm (Google Drive)</th>
+                                    <th class="py-3 px-4 w-28">Điểm Số (0-10)</th>
+                                    <th class="py-3 px-4">Nhận Xét Của Giáo Viên</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradingTable" class="divide-y divide-slate-100 text-sm">
+                                <!-- Render từ JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button type="submit" id="btnSaveGrades" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-md flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i> Lưu Tất Cả Điểm & Nhận Xét
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 3. ĐĂNG VIDEO NHẬN XÉT CÁ NHÂN (YOUTUBE) -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i>
+                    Đăng Video Nhận Xét Định Kỳ (YouTube Unlisted)
+                </h2>
+                <form onsubmit="handleUploadVideo(event)" class="grid sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Chọn Học Sinh Nhận Video</label>
+                        <select id="videoStudentSelect" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                            <!-- Render danh sách học sinh của lớp đang chọn -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Tiêu Đề Video</label>
+                        <input type="text" id="videoTitle" required placeholder="Nhận xét Speaking Tháng 8" 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Đường Link YouTube</label>
+                        <input type="url" id="videoUrl" required placeholder="https://www.youtube.com/watch?v=..." 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Ghi Chú Kèm Theo</label>
+                        <input type="text" id="videoNote" placeholder="Cần chú ý phát âm âm /θ/ và /ð/..." 
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2 pt-1">
+                        <button type="submit" id="btnSaveVideo" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
+                            Đăng Video Vào Thư Viện Của Học Sinh
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 4. QUẢN LÝ HỎI - ĐÁP (Q&A) TỪ HỌC SINH -->
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5 text-green-600"></i>
+                    Thắc Mắc Cần Trả Lời (Q&A)
+                </h2>
+                <div id="qaTeacherList" class="space-y-3">
+                    <!-- Render từ JS -->
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        let currentTeacher = null;
+        let teacherClasses = []; // Danh sách tất cả lớp giáo viên dạy
+        let currentClassId = null; // ID lớp đang được chọn
+
+        // 1. KIỂM TRA PHÂN QUYỀN GIÁO VIÊN & TẢI DANH SÁCH LỚP PHỤ TRÁCH
+        async function initTeacherPage() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            const { data: profile } = await supabase.from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile || profile.role !== 'teacher') {
+                alert("Tài khoản không có quyền truy cập trang Giáo Viên!");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentTeacher = profile;
+            document.getElementById('teacherNameHeader').innerText = profile.full_name;
+
+            // Tải TẤT CẢ các lớp mà Giáo viên này được giao dạy
+            const { data: classes } = await supabase.from('classes')
+                .select('*')
+                .eq('teacher_id', profile.id);
+
+            if (!classes || classes.length === 0) {
+                document.getElementById('noClassAlert').classList.remove('hidden');
+                document.getElementById('teacherMainContent').classList.add('hidden');
+                return;
+            }
+
+            teacherClasses = classes;
+            currentClassId = teacherClasses[0].id; // Mặc định chọn lớp đầu tiên
+
+            renderClassSelectDropdown();
+            loadClassData();
+        }
+
+        // HÀM RENDER DROPDOWN CHỌN LỚP
+        function renderClassSelectDropdown() {
+            const select = document.getElementById('teacherClassSelect');
+            select.innerHTML = teacherClasses.map(c => 
+                `<option value="${c.id}">${c.class_name}</option>`
+            ).join('');
+            select.value = currentClassId;
+        }
+
+        // KHI GIÁO VIÊN ĐỔI LỚP TRÊN DROPDOWN
+        function handleClassChange() {
+            currentClassId = document.getElementById('teacherClassSelect').value;
+            loadClassData();
+        }
+
+        // TẢI TOÀN BỘ DỮ LIỆU CỦA LỚP ĐANG CHỌN
+        function loadClassData() {
+            const selectedClass = teacherClasses.find(c => c.id === currentClassId);
+            if (selectedClass) {
+                document.getElementById('currentClassNameDisplay').innerText = `Lớp: ${selectedClass.class_name}`;
+            }
+
+            // Reset và tải mới các mục theo Lớp đang chọn
+            loadTodayZoomInfo();
+            loadAssignments();
+            loadStudentsForVideoSelect();
+            loadQA();
+        }
+
+        // ĐỔI MẬT KHẨU GIÁO VIÊN
+        async function promptChangePassword() {
+            const newPass = prompt("Nhập mật khẩu mới của bạn (tối thiểu 6 ký tự):");
+            if (!newPass) return;
+            if (newPass.length < 6) { alert("Mật khẩu quá ngắn!"); return; }
+
+            const { error } = await supabase.auth.updateUser({ password: newPass });
+            if (error) alert("Lỗi: " + error.message);
+            else alert("Đổi mật khẩu thành công!");
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        // 2. LỊCH HỌC ZOOM TỰ ĐỘNG HIỂN THỊ / CẬP NHẬT
+        async function loadTodayZoomInfo() {
+            const today = new Date().toISOString().split('T')[0];
+            const { data: lessons } = await supabase.from('lessons')
+                .select('*')
+                .eq('class_id', currentClassId)
+                .eq('lesson_date', today)
+                .limit(1);
+
+            if (lessons && lessons.length > 0) {
+                const l = lessons[0];
+                document.getElementById('zoomTime').value = l.lesson_time || '';
+                document.getElementById('zoomId').value = l.zoom_id || '';
+                document.getElementById('zoomPass').value = l.passcode || '';
+                document.getElementById('zoomLink').value = l.zoom_link || '';
+            } else {
+                document.getElementById('zoomTime').value = '';
+                document.getElementById('zoomId').value = '';
+                document.getElementById('zoomPass').value = '';
+                document.getElementById('zoomLink').value = '';
+            }
+        }
+
+        async function handleUpdateZoom(e) {
+            e.preventDefault();
+            const today = new Date().toISOString().split('T')[0];
+
+            const lessonData = {
+                class_id: currentClassId,
+                lesson_date: today,
+                lesson_time: document.getElementById('zoomTime').value.trim(),
+                zoom_id: document.getElementById('zoomId').value.trim(),
+                passcode: document.getElementById('zoomPass').value.trim(),
+                zoom_link: document.getElementById('zoomLink').value.trim()
+            };
+
+            const { error } = await supabase.from('lessons').insert([lessonData]);
+
+            if (error) alert("Lỗi lưu lịch Zoom: " + error.message);
+            else alert("Đã cập nhật lịch học Zoom hôm nay thành công!");
+        }
+
+        // 3. TẠO BÀI TẬP MỚI & BẢNG CHẤM ĐIỂM
+        async function promptCreateAssignment() {
+            const title = prompt("Nhập tiêu đề bài tập mới:");
+            if (!title) return;
+            const description = prompt("Nhập mô tả / dán link tài liệu giao bài (nếu có):") || "";
+
+            const { error } = await supabase.from('assignments').insert([{
+                class_id: currentClassId,
+                title: title,
+                description: description,
+                assigned_date: new Date().toISOString()
+            }]);
+
+            if (error) alert("Lỗi tạo bài tập: " + error.message);
+            else { alert("Đã giao bài tập mới thành công!"); loadAssignments(); }
+        }
+
+        async function loadAssignments() {
+            const { data: assignments } = await supabase.from('assignments')
+                .select('*')
+                .eq('class_id', currentClassId)
+                .order('assigned_date', { ascending: false });
+
+            const select = document.getElementById('assignmentSelect');
+            if (!assignments || assignments.length === 0) {
+                select.innerHTML = '<option value="">-- Lớp này chưa có bài tập --</option>';
+                document.getElementById('gradingTable').innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">Vui lòng bấm "+ Tạo Bài Tập Mới" để bắt đầu chấm điểm.</td></tr>';
+                return;
+            }
+
+            select.innerHTML = assignments.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
+            loadSubmissionsForGrading();
+        }
+
+        // LOGIC CHỐNG TỰ ĐỘNG LÀM XÁM / ẨN HỌC SINH TRỄ PHÍ
+        async function loadSubmissionsForGrading() {
+            const assignmentId = document.getElementById('assignmentSelect').value;
+            if (!assignmentId) return;
+
+            // Lấy danh sách học sinh của lớp đang chọn
+            const { data: students } = await supabase.from('profiles')
+                .select('*')
+                .eq('class_id', currentClassId)
+                .eq('role', 'student');
+
+            // Lấy danh sách bài đã nộp
+            const { data: submissions } = await supabase.from('submissions')
+                .select('*')
+                .eq('assignment_id', assignmentId);
+
+            const subMap = {};
+            submissions?.forEach(s => { subMap[s.student_id] = s; });
+
+            const now = new Date();
+            const table = document.getElementById('gradingTable');
+
+            // Lọc loại bỏ học sinh bị Ẩn (is_deleted = true) hoặc Quá hạn > 7 ngày
+            const visibleStudents = (students || []).filter(s => {
+                if (s.is_deleted) return false;
+                const expDate = new Date(s.expired_at);
+                const diffDays = Math.floor((now - expDate) / (1000 * 60 * 60 * 24));
+                return diffDays <= 7; // Nếu quá hạn > 7 ngày thì ẩn hẳn khỏi bảng điểm
+            });
+
+            if (visibleStudents.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">Không có học sinh hiển thị trong lớp này.</td></tr>';
+                return;
+            }
+
+            table.innerHTML = visibleStudents.map(s => {
+                const sub = subMap[s.id];
+                const expDate = new Date(s.expired_at);
+                const diffDays = Math.floor((now - expDate) / (1000 * 60 * 60 * 24));
+                
+                // Trễ phí từ 1 đến 7 ngày -> Làm Xám (Greyed out)
+                const isGreyed = diffDays > 0 && diffDays <= 7;
+
+                return `
+                    <tr class="${isGreyed ? 'bg-slate-100 opacity-60' : 'hover:bg-slate-50'} border-b border-slate-100">
+                        <td class="py-3 px-4 font-bold text-slate-800">
+                            ${s.full_name}
+                            ${isGreyed ? '<span class="text-[10px] bg-amber-200 text-amber-800 px-1.5 py-0.5 rounded ml-1 font-normal">⚠️ Trễ học phí</span>' : ''}
+                            <input type="hidden" name="student_id" value="${s.id}">
+                        </td>
+                        <td class="py-3 px-4">
+                            ${sub?.drive_link ? 
+                                `<a href="${sub.drive_link}" target="_blank" class="text-xs bg-blue-50 text-blue-600 font-semibold px-2.5 py-1 rounded-lg hover:bg-blue-100 transition inline-flex items-center gap-1">
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở bài làm
+                                </a>` : 
+                                '<span class="text-xs text-slate-400 italic">Chưa nộp bài</span>'}
+                        </td>
+                        <td class="py-3 px-4">
+                            <input type="number" step="0.5" min="0" max="10" name="score_${s.id}" value="${sub?.score !== null && sub?.score !== undefined ? sub.score : ''}" placeholder="0-10" 
+                                class="w-20 px-2 py-1 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500 font-bold text-blue-600">
+                        </td>
+                        <td class="py-3 px-4">
+                            <input type="text" name="feedback_${s.id}" value="${sub?.feedback || ''}" placeholder="Nhập nhận xét chi tiết..." 
+                                class="w-full px-3 py-1 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500">
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // LƯU TẤT CẢ ĐIỂM SỐ VÀ NHẬN XÉT HÀNG LOẠT
+        async function handleSaveAllGrades(e) {
+            e.preventDefault();
+            const assignmentId = document.getElementById('assignmentSelect').value;
+            if (!assignmentId) return;
+
+            const rows = document.querySelectorAll('#gradingTable tr');
+            const updates = [];
+
+            rows.forEach(row => {
+                const studentIdInput = row.querySelector('input[name="student_id"]');
+                if (!studentIdInput) return;
+                
+                const studentId = studentIdInput.value;
+                const scoreInput = row.querySelector(`input[name="score_${studentId}"]`);
+                const feedbackInput = row.querySelector(`input[name="feedback_${studentId}"]`);
+
+                const scoreVal = scoreInput.value !== '' ? parseFloat(scoreInput.value) : null;
+                const feedbackVal = feedbackInput.value.trim();
+
+                updates.push({
+                    assignment_id: assignmentId,
+                    student_id: studentId,
+                    score: scoreVal,
+                    feedback: feedbackVal,
+                    submitted_at: new Date().toISOString()
+                });
+            });
+
+            const { error } = await supabase.from('submissions').upsert(updates, { onConflict: 'assignment_id,student_id' });
+
+            if (error) alert("Lỗi lưu điểm: " + error.message);
+            else alert("Đã lưu bảng điểm và nhận xét thành công!");
+        }
+
+        // 4. ĐĂNG VIDEO NHẬN XÉT CÁ NHÂN
+        async function loadStudentsForVideoSelect() {
+            const { data: students } = await supabase.from('profiles')
+                .select('*')
+                .eq('class_id', currentClassId)
+                .eq('role', 'student')
+                .eq('is_deleted', false);
+
+            const select = document.getElementById('videoStudentSelect');
+            if (!students || students.length === 0) {
+                select.innerHTML = '<option value="">-- Không có học sinh trong lớp --</option>';
+                return;
+            }
+
+            select.innerHTML = students.map(s => `<option value="${s.id}">${s.full_name}</option>`).join('');
+        }
+
+        async function handleUploadVideo(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('videoStudentSelect').value;
+            const title = document.getElementById('videoTitle').value.trim();
+            const url = document.getElementById('videoUrl').value.trim();
+            const note = document.getElementById('videoNote').value.trim();
+
+            const { error } = await supabase.from('monthly_videos').insert([{
+                student_id: studentId,
+                title: title,
+                youtube_url: url,
+                note: note
+            }]);
+
+            if (error) alert("Lỗi lưu video: " + error.message);
+            else {
+                alert("Đã thêm video nhận xét cho học sinh thành công!");
+                document.getElementById('videoTitle').value = '';
+                document.getElementById('videoUrl').value = '';
+                document.getElementById('videoNote').value = '';
+            }
+        }
+
+        // 5. TRẢ LỜI QUẢN LÝ HỎI ĐÁP (Q&A)
+        async function loadQA() {
+            // Lấy danh sách học sinh thuộc lớp này trước
+            const { data: students } = await supabase.from('profiles')
+                .select('id')
+                .eq('class_id', currentClassId);
+
+            const studentIds = (students || []).map(s => s.id);
+
+            if (studentIds.length === 0) {
+                document.getElementById('qaTeacherList').innerHTML = '<p class="text-slate-400 text-xs">Lớp này hiện chưa có thắc mắc nào.</p>';
+                return;
+            }
+
+            const { data: qas } = await supabase.from('feedbacks')
+                .select('*, profiles(full_name)')
+                .in('student_id', studentIds)
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('qaTeacherList');
+            if (!qas || qas.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-xs">Lớp này hiện chưa có câu hỏi nào từ học sinh.</p>';
+                return;
+            }
+
+            container.innerHTML = qas.map(q => `
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                    <div class="flex justify-between items-start">
+                        <span class="font-bold text-xs text-blue-600">${q.profiles?.full_name || 'Học sinh'} hỏi:</span>
+                        <span class="text-[10px] text-slate-400">${new Date(q.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <p class="text-sm font-medium text-slate-800">${q.question}</p>
+                    <div class="flex gap-2 pt-1">
+                        <input type="text" id="ans_${q.id}" value="${q.answer || ''}" placeholder="Nhập câu trả lời phản hồi..." 
+                            class="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="handleReplyQA('${q.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition">
+                            Gửi Trả Lời
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleReplyQA(qaId) {
+            const answer = document.getElementById(`ans_${qaId}`).value.trim();
+            if(!answer) return;
+
+            const { error } = await supabase.from('feedbacks').update({
+                answer: answer,
+                status: 'answered'
+            }).eq('id', qaId);
+
+            if (error) alert("Lỗi gửi trả lời: " + error.message);
+            else { alert("Đã phản hồi câu hỏi thành công!"); loadQA(); }
+        }
+
+        initTeacherPage();
+    </script>
+</body>
+</html>

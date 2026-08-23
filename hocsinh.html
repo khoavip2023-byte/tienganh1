@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao Diện Học Sinh - tienganhthatvui.com</title>
+    <!-- Tailwind CSS & Supabase SDK & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+    <!-- HEADER HỌC SINH -->
+    <header class="bg-blue-600 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                    <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 id="studentNameHeader" class="font-bold text-base md:text-lg leading-tight">Học Sinh</h1>
+                    <p id="studentClassHeader" class="text-xs text-blue-100">Đang tải thông tin lớp...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- NÚT ĐỔI MẬT KHẨU HỌC SINH -->
+                <button onclick="promptChangePassword()" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <i data-lucide="key" class="w-3.5 h-3.5"></i> Đổi mật khẩu
+                </button>
+                <button onclick="handleLogout()" class="bg-red-500/80 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Đăng xuất
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BANNER CẢNH BÁO SẮP HẾT HẠN HỌC PHÍ (HIỆN NẾU CÒN <= 7 NGÀY) -->
+    <div id="warningBanner" class="hidden bg-amber-500 text-white px-4 py-3 shadow-md">
+        <div class="max-w-5xl mx-auto flex items-center justify-between text-xs md:text-sm font-medium">
+            <div class="flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 text-amber-100"></i>
+                <span id="warningMessage">Tài khoản của bạn sắp hết hạn học phí! Vui lòng gia hạn để không bị gián đoạn học tập.</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="scrollToTuition()" class="bg-white text-amber-800 px-3 py-1 rounded-lg text-xs font-bold hover:bg-amber-100 transition">Thanh Toán</button>
+                <button onclick="document.getElementById('warningBanner').classList.add('hidden')" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH KHÓA TÍNH NĂNG KHI QUÁ HẠN HỌC PHÍ -->
+    <div id="expiredScreen" class="hidden max-w-2xl mx-auto mt-12 p-6 bg-white rounded-3xl shadow-xl border border-red-100 text-center space-y-6">
+        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+            <i data-lucide="lock" class="w-8 h-8"></i>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold text-slate-900">Tài Khoản Đã Hết Hạn Học Phí</h2>
+            <p class="text-sm text-slate-500 mt-1">Tính năng học tập đã bị tạm khóa. Vui lòng thanh toán học phí để tiếp tục học.</p>
+        </div>
+
+        <!-- KHUNG VIETQR & THÔNG TIN CHUYỂN KHỎAN -->
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 text-left space-y-4">
+            <h3 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2">
+                <i data-lucide="qr-code" class="w-4 h-4 text-blue-600"></i> Thông Tin Chuyển Khoản Học Phí
+            </h3>
+            
+            <div class="grid md:grid-cols-2 gap-4 items-center">
+                <div class="space-y-2 text-xs text-slate-700">
+                    <p><strong>Ngân hàng:</strong> MBBank (Nội Thương Việt Nam)</p>
+                    <p><strong>Số tài khoản:</strong> <span id="stkBank" class="font-mono font-bold text-blue-600">0352528795</span> 
+                        <button onclick="copyText('stkBank')" class="text-xs text-blue-600 font-semibold underline ml-1">[📋 Copy]</button>
+                    </p>
+                    <p><strong>Chủ tài khoản:</strong> TIENG ANH THAT VUI</p>
+                    <p><strong>Học phí:</strong> <span class="font-bold text-green-600">500.000 VNĐ / tháng</span></p>
+                    <p><strong>Nội dung CK:</strong> <span id="transferContent" class="font-mono font-bold text-amber-600">...</span>
+                        <button onclick="copyText('transferContent')" class="text-xs text-blue-600 font-semibold underline ml-1">[📋 Copy]</button>
+                    </p>
+                </div>
+                <!-- MÃ VIETQR TỰ ĐỘNG -->
+                <div class="text-center">
+                    <img id="vietqrImg" src="" alt="Mã VietQR Chuyển Khoản" class="w-40 h-40 mx-auto rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[10px] text-slate-400 mt-1">Quét mã QR để thanh toán nhanh</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM GỬI YÊU CẦU DUYỆT HỌC PHÍ -->
+        <form onsubmit="handleSendTuitionRequest(event)" class="space-y-3 pt-2">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 text-left mb-1">Số tháng thanh toán</label>
+                    <select id="monthsSelect" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="1">1 Tháng (500.000đ)</option>
+                        <option value="2">2 Tháng (1.000.000đ)</option>
+                        <option value="3">3 Tháng (1.500.000đ)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 text-left mb-1">Mã Giao Dịch / Ghi Chú</label>
+                    <input type="text" id="transactionCode" required placeholder="Ví dụ: MB123456" 
+                        class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <button type="submit" id="btnSubmitTuition" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg">
+                Xác Nhận Đã Thanh Toán & Gửi Admin Duyệt
+            </button>
+        </form>
+    </div>
+
+    <!-- KHU VỰC HỌC TẬP CHÍNH (ẨN KHI HẾT HẠN) -->
+    <main id="mainContent" class="max-w-5xl mx-auto px-4 mt-6 space-y-8">
+
+        <!-- 1. LỊCH HỌC HÔM NAY (ZOOM / MEETING) -->
+        <section class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden">
+            <div class="relative z-10 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-blue-100 flex items-center gap-1.5">
+                        <i data-lucide="video" class="w-3.5 h-3.5"></i> Lịch Học Hôm Nay
+                    </span>
+                    <span id="lessonDateText" class="text-xs text-blue-100 font-medium">--/--/----</span>
+                </div>
+
+                <div id="noLessonBox" class="py-4 text-center text-blue-100 text-sm">
+                    Hôm nay chưa có lịch học Zoom. Vui lòng xem thông báo từ Giáo viên!
+                </div>
+
+                <div id="lessonInfoBox" class="hidden grid md:grid-cols-3 gap-4 pt-2">
+                    <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
+                        <p class="text-[11px] text-blue-200 uppercase font-semibold">Giờ Học</p>
+                        <p id="lessonTime" class="text-base font-bold mt-0.5">--:--</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
+                        <p class="text-[11px] text-blue-200 uppercase font-semibold">Mã ID Zoom</p>
+                        <div class="flex items-center justify-between mt-0.5">
+                            <span id="zoomId" class="text-base font-mono font-bold">---</span>
+                            <button onclick="copyText('zoomId')" class="text-xs bg-white/20 hover:bg-white/30 px-2 py-1 rounded-lg transition">[📋 Copy]</button>
+                        </div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/10">
+                        <p class="text-[11px] text-blue-200 uppercase font-semibold">Mật Khẩu (Passcode)</p>
+                        <p id="zoomPass" class="text-base font-mono font-bold mt-0.5">---</p>
+                    </div>
+                    <div class="md:col-span-3 pt-2">
+                        <a id="zoomLinkBtn" href="#" target="_blank" class="block w-full text-center bg-white hover:bg-blue-50 text-blue-700 font-bold py-3 rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="external-link" class="w-4 h-4"></i> VÀO LỚP HỌC ZOOM NGAY
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. NỘP BÀI TẬP VỀ NHÀ (LINK GOOGLE DRIVE) -->
+        <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="upload-cloud" class="w-5 h-5 text-blue-600"></i>
+                Nộp Bài Tập Về Nhà (Google Drive)
+            </h2>
+
+            <div id="assignmentList" class="space-y-4">
+                <!-- Render danh sách bài tập cần nộp -->
+            </div>
+        </section>
+
+        <!-- 3. THƯ VIỆN VIDEO NHẬN XÉT ĐỊNH KỲ (THUMBNAIL GRID) -->
+        <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="film" class="w-5 h-5 text-purple-600"></i>
+                Video Nhận Xét Từ Giáo Viên
+            </h2>
+
+            <div id="videoGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Render Lưới Video dạng Thumbnail -->
+            </div>
+        </section>
+
+        <!-- 4. KHUNG HỎI - ĐÁP (Q&A) VỚI GIÁO VIÊN -->
+        <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-green-600"></i>
+                Gửi Thắc Mắc Cho Giáo Viên (Q&A)
+            </h2>
+
+            <form onsubmit="handleSendQuestion(event)" class="flex gap-2">
+                <input type="text" id="questionInput" required placeholder="Nhập câu hỏi hoặc thắc mắc bài học..." 
+                    class="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-2xl text-sm transition flex items-center gap-1.5">
+                    <i data-lucide="send" class="w-4 h-4"></i> Gửi
+                </button>
+            </form>
+
+            <div id="qaList" class="space-y-3 pt-2">
+                <!-- Render danh sách Q&A -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL POPUP XEM VIDEO FULLSCREEN -->
+    <div id="videoModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl relative">
+            <button onclick="closeVideoModal()" class="absolute top-3 right-3 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full z-10 backdrop-blur-sm">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="aspect-video w-full">
+                <iframe id="youtubeIframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        let currentStudent = null;
+
+        // 1. KIỂM TRA PHÂN QUYỀN HỌC SINH & HẠN HỌC PHÍ
+        async function initStudentPage() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'index.html'; return; }
+
+            const { data: profile } = await supabase.from('profiles')
+                .select('*, classes(class_name)')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile || profile.role !== 'student') {
+                alert("Tài khoản không hợp lệ!");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentStudent = profile;
+            document.getElementById('studentNameHeader').innerText = profile.full_name;
+            document.getElementById('studentClassHeader').innerText = profile.classes ? profile.classes.class_name : 'Chưa xếp lớp';
+
+            // KÍCH HOẠT LOGIC KIỂM TRA HẠN HỌC PHÍ
+            const now = new Date();
+            const expDate = new Date(profile.expired_at);
+            const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+
+            if (daysLeft < 0) {
+                // ĐÃ QUÁ HẠN -> KHÓA HỌC TẬP & HIỆN MÀN HÌNH THANH TOÁN
+                document.getElementById('mainContent').classList.add('hidden');
+                document.getElementById('expiredScreen').classList.remove('hidden');
+
+                const cleanName = profile.full_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "");
+                const className = profile.classes ? profile.classes.class_name.replace(/\s+/g, "") : "Lop";
+                const transferCode = `${cleanName}${className}`;
+                
+                document.getElementById('transferContent').innerText = transferCode;
+
+                // TẠO MÃ VIETQR ĐỘNG TỪ VIETQR.IO
+                const stk = "0352528795";
+                const bank = "MB";
+                const amount = "500000";
+                const qrUrl = `https://img.vietqr.io/image/${bank}-${stk}-compact2.png?amount=${amount}&addInfo=${transferCode}`;
+                document.getElementById('vietqrImg').src = qrUrl;
+
+            } else {
+                // CÒN HẠN -> NẾU CÒN <= 7 NGÀY THÌ CẢNH BÁO
+                if (daysLeft <= 7) {
+                    document.getElementById('warningBanner').classList.remove('hidden');
+                    document.getElementById('warningMessage').innerText = `Tài khoản của bạn chỉ còn ${daysLeft} ngày học phí (Hết hạn: ${expDate.toLocaleDateString('vi-VN')}). Vui lòng đóng học phí để duy trì!`;
+                }
+
+                // TẢI DỮ LIỆU HỌC TẬP
+                loadTodayLesson();
+                loadAssignments();
+                loadVideos();
+                loadQA();
+            }
+        }
+
+        // ĐỔI MẬT KHẨU HỌC SINH
+        async function promptChangePassword() {
+            const newPass = prompt("Nhập mật khẩu mới của bạn (tối thiểu 6 ký tự):");
+            if (!newPass) return;
+            if (newPass.length < 6) { alert("Mật khẩu quá ngắn!"); return; }
+
+            const { error } = await supabase.auth.updateUser({ password: newPass });
+            if (error) alert("Lỗi: " + error.message);
+            else alert("Đổi mật khẩu thành công!");
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            alert("Đã sao chép: " + text);
+        }
+
+        // 2. LỊCH HỌC HÔM NAY (ZOOM)
+        async function loadTodayLesson() {
+            if (!currentStudent.class_id) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const { data: lessons } = await supabase.from('lessons')
+                .select('*')
+                .eq('class_id', currentStudent.class_id)
+                .lte('lesson_date', today)
+                .order('lesson_date', { ascending: false })
+                .limit(1);
+
+            if (lessons && lessons.length > 0) {
+                const lesson = lessons[0];
+                document.getElementById('noLessonBox').classList.add('hidden');
+                document.getElementById('lessonInfoBox').classList.remove('hidden');
+                document.getElementById('lessonDateText').innerText = new Date(lesson.lesson_date).toLocaleDateString('vi-VN');
+                document.getElementById('lessonTime').innerText = lesson.lesson_time || 'Chưa định giờ';
+                document.getElementById('zoomId').innerText = lesson.zoom_id || 'N/A';
+                document.getElementById('zoomPass').innerText = lesson.passcode || 'N/A';
+                document.getElementById('zoomLinkBtn').href = lesson.zoom_link || '#';
+            }
+        }
+
+        // 3. BÀI TẬP VỀ NHÀ & NỘP LINK DRIVE
+        async function loadAssignments() {
+            if (!currentStudent.class_id) return;
+
+            const { data: assignments } = await supabase.from('assignments')
+                .select('*')
+                .eq('class_id', currentStudent.class_id)
+                .order('assigned_date', { ascending: false });
+
+            const { data: submissions } = await supabase.from('submissions')
+                .select('*')
+                .eq('student_id', currentStudent.id);
+
+            const subMap = {};
+            submissions?.forEach(s => { subMap[s.assignment_id] = s; });
+
+            const container = document.getElementById('assignmentList');
+            if (!assignments || assignments.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-sm">Chưa có bài tập nào được giao.</p>';
+                return;
+            }
+
+            container.innerHTML = assignments.map(a => {
+                const sub = subMap[a.id];
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm">${a.title}</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">${a.description || 'Không có mô tả'}</p>
+                            </div>
+                            ${sub && sub.score !== null ? 
+                                `<span class="bg-green-100 text-green-700 font-bold text-xs px-2.5 py-1 rounded-lg">${sub.score} ĐIỂM</span>` : 
+                                '<span class="bg-amber-100 text-amber-700 font-medium text-xs px-2.5 py-1 rounded-lg">Chờ Chấm</span>'}
+                        </div>
+
+                        <!-- FORM NỘP BÀI DRIVE -->
+                        <form onsubmit="handleSubDrive(event, '${a.id}')" class="flex gap-2">
+                            <input type="url" id="driveInput_${a.id}" required value="${sub?.drive_link || ''}" placeholder="Dán link Google Drive bài làm tại đây..." 
+                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition">
+                                ${sub ? 'Nộp Lại' : 'Nộp Bài'}
+                            </button>
+                        </form>
+
+                        ${sub?.drive_link ? `
+                            <div class="flex items-center justify-between pt-1">
+                                <a href="${sub.drive_link}" target="_blank" class="text-xs text-blue-600 font-medium hover:underline flex items-center gap-1">
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở xem bài đã nộp (Tab mới)
+                                </a>
+                                ${sub.feedback ? `<p class="text-xs text-slate-600 italic"><strong>GV Nhận xét:</strong> ${sub.feedback}</p>` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        async function handleSubDrive(e, assignmentId) {
+            e.preventDefault();
+            const driveLink = document.getElementById(`driveInput_${assignmentId}`).value.trim();
+
+            const { error } = await supabase.from('submissions').upsert([{
+                assignment_id: assignmentId,
+                student_id: currentStudent.id,
+                drive_link: driveLink,
+                submitted_at: new Date().toISOString()
+            }], { onConflict: 'assignment_id,student_id' });
+
+            if (error) alert("Lỗi nộp bài: " + error.message);
+            else { alert("Đã nộp bài tập thành công!"); loadAssignments(); }
+        }
+
+        // 4. THƯ VIỆN VIDEO NHẬN XÉT (THUMBNAIL GRID)
+        async function loadVideos() {
+            const { data: videos } = await supabase.from('monthly_videos')
+                .select('*')
+                .eq('student_id', currentStudent.id)
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('videoGrid');
+            if (!videos || videos.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-sm col-span-full">Chưa có video nhận xét nào.</p>';
+                return;
+            }
+
+            container.innerHTML = videos.map(v => {
+                const videoId = extractYoutubeId(v.youtube_url);
+                const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : 'https://via.placeholder.com/320x180?text=No+Video';
+
+                return `
+                    <div onclick="openVideoModal('${videoId}')" class="group bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 cursor-pointer hover:shadow-md transition">
+                        <div class="relative aspect-video bg-slate-900">
+                            <img src="${thumbUrl}" alt="Thumbnail" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition">
+                                <div class="w-10 h-10 bg-white/90 text-red-600 rounded-full flex items-center justify-center shadow-lg">
+                                    <i data-lucide="play" class="w-5 h-5 fill-current ml-0.5"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <h4 class="font-bold text-xs text-slate-800 line-clamp-1">${v.title || 'Video nhận xét'}</h4>
+                            <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">${v.note || 'Không có ghi chú'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function extractYoutubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function openVideoModal(videoId) {
+            if(!videoId) return;
+            document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            document.getElementById('videoModal').classList.remove('hidden');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('youtubeIframe').src = '';
+            document.getElementById('videoModal').classList.add('hidden');
+        }
+
+        // 5. KHUNG HỎI ĐÁP Q&A
+        async function loadQA() {
+            const { data: qas } = await supabase.from('feedbacks')
+                .select('*')
+                .eq('student_id', currentStudent.id)
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('qaList');
+            if (!qas || qas.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-xs">Chưa có câu hỏi nào.</p>';
+                return;
+            }
+
+            container.innerHTML = qas.map(q => `
+                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 text-xs">
+                    <p class="font-semibold text-slate-800"><span class="text-blue-600">Học sinh:</span> ${q.question}</p>
+                    ${q.answer ? 
+                        `<p class="text-green-700 bg-green-50 p-2 rounded-xl border border-green-100"><strong>Giáo viên trả lời:</strong> ${q.answer}</p>` : 
+                        '<p class="text-slate-400 italic">Đang chờ giáo viên phản hồi...</p>'}
+                </div>
+            `).join('');
+        }
+
+        async function handleSendQuestion(e) {
+            e.preventDefault();
+            const question = document.getElementById('questionInput').value.trim();
+
+            const { error } = await supabase.from('feedbacks').insert([{
+                student_id: currentStudent.id,
+                question: question,
+                status: 'pending'
+            }]);
+
+            if (error) alert("Lỗi gửi câu hỏi: " + error.message);
+            else {
+                document.getElementById('questionInput').value = '';
+                loadQA();
+            }
+        }
+
+        // 6. GỬI YÊU CẦU DUYỆT HỌC PHÍ KHI KHÓA
+        async function handleSendTuitionRequest(e) {
+            e.preventDefault();
+            const months = parseInt(document.getElementById('monthsSelect').value);
+            const code = document.getElementById('transactionCode').value.trim();
+            const btn = document.getElementById('btnSubmitTuition');
+
+            btn.innerText = 'Đang gửi yêu cầu...';
+            btn.disabled = true;
+
+            const { error } = await supabase.from('tuition_requests').insert([{
+                student_id: currentStudent.id,
+                months: months,
+                transaction_code: code,
+                status: 'pending'
+            }]);
+
+            if (error) alert("Lỗi: " + error.message);
+            else {
+                alert("Đã gửi yêu cầu xác nhận thanh toán! Ban Quản Trị sẽ kiểm tra và kích hoạt lại tài khoản cho bạn sớm nhất.");
+                location.reload();
+            }
+        }
+
+        initStudentPage();
+    </script>
+</body>
+</html>
