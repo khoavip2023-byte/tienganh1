@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiếng Anh Thật Vui - Khóa Học Giao Tiếp Cấp 2 & Cấp 3</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- 1. Tailwind CSS CDN (Giao diện) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 1. BẮT BUỘC: Thư viện Supabase JS SDK (Phải nạp trước config.js để tránh lỗi undefined) -->
+    <!-- 2. Thư viện Supabase JS SDK (BẮT BUỘC TẢI ĐẦU TIÊN TRONG HEAD) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- 2. Tệp cấu hình kết nối Supabase -->
-    <script src="config.js"></script>
-
-    <!-- Lucide Icons -->
+    <!-- 3. Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
@@ -106,19 +103,31 @@
         <p>© 2026 Bản quyền thuộc về Tiếng Anh Thật Vui. Vận hành miễn phí trên Cloudflare Pages & Supabase.</p>
     </footer>
 
-    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP (TỰ ĐỘNG PHÂN LUỒNG ROLE) -->
+    <!-- SCRIPT KHỞI TẠO SUPABASE VÀ XỬ LÝ ĐĂNG NHẬP -->
     <script>
+        // 1. Khởi tạo Biến Kết Nối Supabase Trực Tiếp (Khắc phục hoàn toàn lỗi undefined)
+        const SUPABASE_URL = "https://cafevcfsoabxvtralomc.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_RJq7Z9XLRg-HLaKZXPPdeQ_GWF0UtUF";
+        
+        // Tạo instance client duy nhất dùng chung toàn bộ script
+        const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Hiển thị icon Lucide
         lucide.createIcons();
 
-        // 1. Tự động kiểm tra nếu người dùng đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
+        // 2. Tự động kiểm tra nếu người dùng đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
         async function checkAutoLogin() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                await redirectByRole(session.user.id);
+            try {
+                const { data: { session } } = await dbClient.auth.getSession();
+                if (session) {
+                    await redirectByRole(session.user.id);
+                }
+            } catch (err) {
+                console.error("Lỗi kiểm tra phiên làm việc:", err);
             }
         }
 
-        // 2. Hàm xử lý đăng nhập
+        // 3. Hàm xử lý khi người dùng bấm nút Đăng Nhập
         async function handleLogin(e) {
             e.preventDefault();
             const inputVal = document.getElementById('phone').value.trim();
@@ -126,7 +135,7 @@
             const btnLogin = document.getElementById('btnLogin');
             const errorDiv = document.getElementById('loginError');
 
-            // Xử lý linh hoạt: Nếu nhập SĐT thì nối đuôi @tienganhthatvui.com, nếu nhập email thì giữ nguyên
+            // Quy đổi linh hoạt: Nếu phụ huynh nhập SĐT (vd 0912345678) -> Tự thêm đuôi thành email ảo
             let formattedEmail = inputVal;
             if (!inputVal.includes('@')) {
                 formattedEmail = `${inputVal}@tienganhthatvui.com`;
@@ -137,8 +146,8 @@
             errorDiv.classList.add('hidden');
 
             try {
-                // Xác thực qua Supabase Auth bằng supabaseClient từ config.js
-                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                // Đăng nhập qua Supabase Auth
+                const { data: authData, error: authError } = await dbClient.auth.signInWithPassword({
                     email: formattedEmail,
                     password: password
                 });
@@ -147,7 +156,7 @@
                     throw new Error("Số điện thoại / Email hoặc mật khẩu không chính xác!");
                 }
 
-                // Chuyển hướng theo vai trò (role)
+                // Phân luồng theo vai trò người dùng (role)
                 await redirectByRole(authData.user.id);
 
             } catch (err) {
@@ -158,9 +167,9 @@
             }
         }
 
-        // 3. Hàm phân luồng điều hướng dựa vào quyền (role) trong bảng profiles
+        // 4. Hàm kiểm tra quyền (role) trong bảng profiles và chuyển hướng trang
         async function redirectByRole(userId) {
-            const { data: profile, error } = await supabaseClient
+            const { data: profile, error } = await dbClient
                 .from('profiles')
                 .select('role, is_active, is_deleted')
                 .eq('id', userId)
@@ -168,19 +177,19 @@
 
             if (error || !profile || profile.is_deleted) {
                 alert("Tài khoản không tồn tại hoặc đã bị ẩn khỏi hệ thống!");
-                await supabaseClient.auth.signOut();
+                await dbClient.auth.signOut();
                 location.reload();
                 return;
             }
 
             if (profile.is_active === false) {
-                alert("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ Admin!");
-                await supabaseClient.auth.signOut();
+                alert("Tài khoản của bạn đã bị khóa hoặc tạm ngưng hoạt động!");
+                await dbClient.auth.signOut();
                 location.reload();
                 return;
             }
 
-            // Điều hướng chuẩn theo vai trò
+            // Chuyển hướng đúng giao diện
             if (profile.role === 'admin') {
                 window.location.href = 'admin.html';
             } else if (profile.role === 'teacher') {
@@ -190,7 +199,7 @@
             }
         }
 
-        // Chạy kiểm tra phiên đăng nhập tự động
+        // Tự động chạy kiểm tra phiên làm việc khi load trang
         checkAutoLogin();
     </script>
 </body>
