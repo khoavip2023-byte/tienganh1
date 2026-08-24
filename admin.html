@@ -1,2209 +1,472 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Trị Hệ Thống - tienganhthatvui.com</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tiếng Anh Thật Vui — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --teal:#348C90;--teal2:#2b7478;--bg:#f5f7f8;--card:#fff;--text:#193238;
+  --muted:#718087;--line:#e3e9eb;--danger:#d9534f;--warn:#d99000;--ok:#2e8b57;
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.hidden{display:none!important}
+#login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login-card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;
+padding:28px;box-shadow:0 12px 40px #163b4212}
+.logo{font-size:24px;font-weight:800;color:var(--teal);margin-bottom:6px}
+.subtitle{color:var(--muted);font-size:14px;margin-bottom:24px}
+label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+background:#fff;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px #348c9014}
+textarea{min-height:100px;resize:vertical}
+.field{margin-bottom:14px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.btn-primary{background:var(--teal);color:white}.btn-primary:hover{background:var(--teal2)}
+.btn-light{background:#eef3f4;color:var(--text)}.btn-danger{background:#fff0ef;color:var(--danger)}
+.btn-warn{background:#fff7df;color:#9b6900}.btn-sm{padding:7px 10px;font-size:12px}
+#error{color:var(--danger);font-size:13px;margin-top:12px;min-height:18px}
+#app{display:none;min-height:100vh}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);
+display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:20}
+.brand{font-weight:800;color:var(--teal)}.userbox{display:flex;align-items:center;gap:10px;font-size:13px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#e2f1f1;color:var(--teal);
+display:grid;place-items:center;font-weight:800}
+.layout{display:flex;min-height:calc(100vh - 64px)}.sidebar{width:225px;background:#fff;border-right:1px solid var(--line);
+padding:14px 10px;flex:none}.nav{display:flex;flex-direction:column;gap:3px}
+.nav button{border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:9px;color:#52636a}
+.nav button:hover,.nav button.active{background:#e8f3f3;color:var(--teal);font-weight:700}
+.main{padding:22px;min-width:0;flex:1}.page-head{display:flex;align-items:center;justify-content:space-between;
+gap:12px;margin-bottom:18px}.page-title{font-size:24px;font-weight:800}.page-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.stat .n{font-size:27px;font-weight:800;margin-top:4px}
+.stat .l{font-size:12px;color:var(--muted)}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.panel-title{font-weight:800}.tools{display:flex;gap:8px;flex-wrap:wrap}
+.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th,.table td{padding:11px 12px;border-bottom:1px solid #edf0f1;text-align:left;white-space:nowrap;vertical-align:top}
+.table th{font-size:11px;text-transform:uppercase;color:var(--muted);background:#fafbfb}
+.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}
+.b-ok{background:#e7f6ed;color:#237247}.b-off{background:#eef1f2;color:#657278}.b-warn{background:#fff4d9;color:#966800}
+.b-blue{background:#e8f1ff;color:#3567a5}.b-red{background:#ffebea;color:#b23c38}
+.empty{padding:35px;text-align:center;color:var(--muted);font-size:13px}.loading{padding:25px;text-align:center;color:var(--muted)}
+.modal-back{position:fixed;inset:0;background:#10262b80;display:none;align-items:center;justify-content:center;
+padding:18px;z-index:100}.modal{width:min(720px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;
+box-shadow:0 20px 80px #0004}.modal-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.modal-body{padding:18px}.modal-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.close{border:0;background:transparent;font-size:22px;color:var(--muted)}
+.toast{position:fixed;right:18px;bottom:18px;background:#193238;color:#fff;padding:12px 15px;border-radius:10px;
+font-size:13px;display:none;z-index:200;max-width:360px}.toast.bad{background:#a93632}
+.search{max-width:260px}.danger-note{font-size:12px;color:var(--danger);margin-top:5px}
+.mobile-menu{display:none}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.sidebar{width:190px}}
+@media(max-width:650px){
+ .topbar{padding:0 12px}.mobile-menu{display:block}.layout{display:block}.sidebar{width:100%;display:none;border-right:0;border-bottom:1px solid var(--line)}
+ .sidebar.open{display:block}.main{padding:14px}.cards{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}
+ .page-title{font-size:20px}.userbox span{display:none}
+}
+</style>
 </head>
+<body>
 
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
-
-<header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-
-        <div class="flex items-center gap-3">
-            <div class="bg-blue-600 p-2 rounded-xl">
-                <i data-lucide="shield-check" class="w-6 h-6"></i>
-            </div>
-
-            <div>
-                <h1 class="font-bold text-lg leading-tight">
-                    Admin Control Panel
-                </h1>
-                <p class="text-xs text-slate-400">
-                    tienganhthatvui.com
-                </p>
-            </div>
-        </div>
-
-        <button
-            onclick="handleLogout()"
-            class="bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white px-3 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1"
-        >
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            Đăng xuất
-        </button>
-
-    </div>
-</header>
-
-
-<main class="max-w-7xl mx-auto px-4 mt-6 space-y-8">
-
-
-<!-- ===================================================== -->
-<!-- THÔNG BÁO -->
-<!-- ===================================================== -->
-
-<div id="messageBox" class="hidden rounded-xl px-4 py-3 text-sm font-medium"></div>
-
-
-<!-- ===================================================== -->
-<!-- 1. YÊU CẦU HỌC PHÍ -->
-<!-- ===================================================== -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-
-    <div class="flex items-center justify-between mb-4">
-
-        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="credit-card" class="w-5 h-5 text-amber-500"></i>
-            Yêu Cầu Duyệt Học Phí
-        </h2>
-
-        <span
-            id="pendingCount"
-            class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full"
-        >
-            0 yêu cầu
-        </span>
-
-    </div>
-
-    <div class="overflow-x-auto">
-
-        <table class="w-full text-left border-collapse">
-
-            <thead>
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-
-                    <th class="py-3 px-4">Học Sinh</th>
-                    <th class="py-3 px-4">Lớp</th>
-                    <th class="py-3 px-4">Số Tháng</th>
-                    <th class="py-3 px-4">Mã Giao Dịch</th>
-                    <th class="py-3 px-4">Ngày Gửi</th>
-                    <th class="py-3 px-4 text-right">Thao Tác</th>
-
-                </tr>
-            </thead>
-
-            <tbody
-                id="tuitionTable"
-                class="divide-y divide-slate-100 text-sm"
-            ></tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-<!-- ===================================================== -->
-<!-- 2. QUẢN LÝ LỚP + TẠO USER -->
-<!-- ===================================================== -->
-
-<div class="grid md:grid-cols-3 gap-6">
-
-
-<!-- TẠO LỚP -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
-
-    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
-        <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
-
-        Tạo Lớp & Bàn Giao
-
-    </h2>
-
-
-    <form onsubmit="handleCreateClass(event)" class="space-y-3">
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Tên Lớp
-            </label>
-
-            <input
-                type="text"
-                id="className"
-                required
-                placeholder="Ví dụ: Cấp 2 - Phản Xạ K1"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-
-        </div>
-
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Giáo Viên
-            </label>
-
-            <select
-                id="teacherSelect"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
-
-        </div>
-
-
-        <button
-            type="submit"
-            id="btnCreateClass"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition"
-        >
-            Tạo Lớp Học
-        </button>
-
+<section id="login">
+  <div class="login-card">
+    <div class="logo">TIẾNG ANH THẬT VUI</div>
+    <div class="subtitle">Khu vực quản trị LMS</div>
+    <form id="loginForm">
+      <div class="field"><label>Email quản trị</label><input id="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label>Mật khẩu</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary" style="width:100%">Đăng nhập</button>
+      <div id="error"></div>
     </form>
+  </div>
+</section>
 
-
-    <hr class="border-slate-100">
-
-
-    <div>
-
-        <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">
-            Bàn Giao Lớp
-        </h3>
-
-        <div class="space-y-2">
-
-            <select
-                id="classToReassign"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
-
-            <select
-                id="newTeacherForClass"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
-
-            <button
-                onclick="reassignTeacher()"
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs"
-            >
-                Cập Nhật Giáo Viên
-            </button>
-
-        </div>
-
+<section id="app">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn btn-light mobile-menu" onclick="toggleSide()">☰</button>
+      <div class="brand">TIẾNG ANH THẬT VUI · ADMIN</div>
     </div>
-
+    <div class="userbox">
+      <div class="avatar" id="avatar">A</div><span id="adminName">Admin</span>
+      <button class="btn btn-light btn-sm" onclick="logout()">Đăng xuất</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="nav">
+        <button data-page="dashboard" onclick="go('dashboard')">📊 Tổng quan</button>
+        <button data-page="students" onclick="go('students')">👨‍🎓 Học sinh</button>
+        <button data-page="teachers" onclick="go('teachers')">👩‍🏫 Giáo viên</button>
+        <button data-page="classes" onclick="go('classes')">🏫 Lớp học</button>
+        <button data-page="lessons" onclick="go('lessons')">📅 Buổi học</button>
+        <button data-page="assignments" onclick="go('assignments')">📝 Bài tập</button>
+        <button data-page="submissions" onclick="go('submissions')">🎯 Bài nộp</button>
+        <button data-page="videos" onclick="go('videos')">🎬 Video tháng</button>
+        <button data-page="tuition" onclick="go('tuition')">💳 Học phí</button>
+        <button data-page="feedbacks" onclick="go('feedbacks')">💬 Hỏi đáp</button>
+        <button data-page="announcements" onclick="go('announcements')">📢 Thông báo</button>
+      </div>
+    </aside>
+    <main class="main" id="content"></main>
+  </div>
 </section>
 
-
-<!-- TẠO USER -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 md:col-span-2 space-y-4">
-
-    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
-        <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
-
-        Tạo Tài Khoản Người Dùng
-
-    </h2>
-
-
-    <form
-        onsubmit="handleCreateUser(event)"
-        class="grid sm:grid-cols-2 gap-3"
-    >
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Họ và Tên
-            </label>
-
-            <input
-                type="text"
-                id="fullName"
-                required
-                placeholder="Nguyễn Văn A"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            >
-
-        </div>
-
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Số Điện Thoại
-            </label>
-
-            <input
-                type="text"
-                id="userPhone"
-                required
-                placeholder="0912345678"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            >
-
-        </div>
-
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Vai Trò
-            </label>
-
-            <select
-                id="userRole"
-                onchange="toggleClassSelect()"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            >
-
-                <option value="student">
-                    Học Sinh
-                </option>
-
-                <option value="teacher">
-                    Giáo Viên
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div id="classSelectBox">
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Xếp Vào Lớp
-            </label>
-
-            <select
-                id="userClass"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
-
-        </div>
-
-
-        <div>
-
-            <label class="block text-xs font-medium text-slate-600 mb-1">
-                Hạn Học Phí Ban Đầu
-            </label>
-
-            <input
-                type="date"
-                id="expiredAt"
-                required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            >
-
-        </div>
-
-
-        <div class="sm:col-span-2">
-
-            <button
-                type="submit"
-                id="btnCreateUser"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm"
-            >
-                Tạo Tài Khoản
-            </button>
-
-        </div>
-
-    </form>
-
-</section>
-
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <div class="modal-head"><div id="modalTitle" style="font-weight:800">Biểu mẫu</div><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot"><button class="btn btn-light" onclick="closeModal()">Hủy</button><button class="btn btn-primary" id="modalSave">Lưu</button></div>
+  </div>
 </div>
-
-
-<!-- ===================================================== -->
-<!-- 3. GIÁO VIÊN -->
-<!-- ===================================================== -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-
-    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
-
-        <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-600"></i>
-
-        Danh Sách Giáo Viên
-
-    </h2>
-
-
-    <div class="overflow-x-auto">
-
-        <table class="w-full text-left">
-
-            <thead>
-
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-
-                    <th class="py-3 px-4">
-                        Họ Tên
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Trạng Thái
-                    </th>
-
-                    <th class="py-3 px-4 text-right">
-                        Thao Tác
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody
-                id="teacherTable"
-                class="divide-y divide-slate-100 text-sm"
-            ></tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-<!-- ===================================================== -->
-<!-- 4. HỌC SINH -->
-<!-- ===================================================== -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-
-    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
-
-        <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i>
-
-        Danh Sách Học Sinh
-
-    </h2>
-
-
-    <div class="overflow-x-auto">
-
-        <table class="w-full text-left">
-
-            <thead>
-
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-
-                    <th class="py-3 px-4">
-                        Họ Tên
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Lớp
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Hạn Học Phí
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Trạng Thái
-                    </th>
-
-                    <th class="py-3 px-4 text-right">
-                        Thao Tác
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody
-                id="studentTable"
-                class="divide-y divide-slate-100 text-sm"
-            ></tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-<!-- ===================================================== -->
-<!-- 5. DANH SÁCH LỚP -->
-<!-- ===================================================== -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-
-    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
-
-        <i data-lucide="school" class="w-5 h-5 text-blue-600"></i>
-
-        Danh Sách Lớp Học
-
-    </h2>
-
-
-    <div class="overflow-x-auto">
-
-        <table class="w-full text-left">
-
-            <thead>
-
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-
-                    <th class="py-3 px-4">
-                        Lớp
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Giáo Viên
-                    </th>
-
-                    <th class="py-3 px-4">
-                        Trạng Thái
-                    </th>
-
-                    <th class="py-3 px-4 text-right">
-                        Thao Tác
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody
-                id="classTable"
-                class="divide-y divide-slate-100 text-sm"
-            ></tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-</main>
-
+<div class="toast" id="toast"></div>
 
 <script>
-
 /* =========================================================
-   CẤU HÌNH
-========================================================= */
+   1. CẤU HÌNH SUPABASE
+   Thay đúng 2 giá trị dưới đây.
+   KHÔNG BAO GIỜ dán service_role key vào HTML.
+   ========================================================= */
+const SUPABASE_URL = "https://cafevcfsoabxvtralomc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_RJq7Z9XLRg-HLaKZXPPdeQ_GWF0UtUF";
 
-const SUPABASE_URL =
-    "https://cafevcfsoabxvtralomc.supabase.co";
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_RJq7Z9XLRg-HLaKZXPPdeQ_GWF0UtUF";
+let currentUser = null;
+let currentPage = "dashboard";
+let cache = {profiles:[],classes:[],assignments:[]};
 
-const WORKER_URL =
-    "https://tienganhthatvui-api.khoavip2023.workers.dev";
+const esc = v => String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const short = v => {
+  const s=String(v??""); return s.length>45 ? s.slice(0,45)+"…" : s;
+};
+const fmtDate = v => v ? new Date(v).toLocaleDateString("vi-VN") : "—";
+const fmtDateTime = v => v ? new Date(v).toLocaleString("vi-VN") : "—";
+const badge = (text, cls="b-off") => `<span class="badge ${cls}">${esc(text)}</span>`;
 
+function toast(msg,bad=false){
+  const t=document.getElementById("toast"); t.textContent=msg; t.className="toast"+(bad?" bad":"");
+  t.style.display="block"; clearTimeout(window.__toast); window.__toast=setTimeout(()=>t.style.display="none",2800);
+}
+function toggleSide(){document.getElementById("sidebar").classList.toggle("open")}
+function closeModal(){document.getElementById("modalBack").style.display="none"}
+function openModal(title,html,onSave){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").innerHTML=html;
+  document.getElementById("modalBack").style.display="flex";
+  document.getElementById("modalSave").onclick=async()=>{await onSave()};
+}
+function formVal(id){return document.getElementById(id)?.value?.trim() ?? ""}
+function formNum(id){const v=formVal(id);return v===""?null:Number(v)}
 
-/* =========================================================
-   KHỞI TẠO SUPABASE CLIENT
-========================================================= */
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
-
-/* =========================================================
-   TIỆN ÍCH
-========================================================= */
-
-function showMessage(message, type = "success") {
-
-    const box =
-        document.getElementById("messageBox");
-
-    box.className =
-        "rounded-xl px-4 py-3 text-sm font-medium";
-
-    if (type === "success") {
-
-        box.classList.add(
-            "bg-green-100",
-            "text-green-800"
-        );
-
-    } else {
-
-        box.classList.add(
-            "bg-red-100",
-            "text-red-800"
-        );
-
-    }
-
-    box.textContent = message;
-
-    setTimeout(() => {
-
-        box.classList.add("hidden");
-
-    }, 5000);
-
+async function ensureAdmin(){
+  const {data:{user},error}=await db.auth.getUser();
+  if(error || !user) return false;
+  const {data:p,error:e}=await db.from("profiles").select("id,full_name,login_name,role,is_active,is_deleted").eq("id",user.id).maybeSingle();
+  if(e || !p || p.role!=="admin" || !p.is_active || p.is_deleted) {
+    await db.auth.signOut();
+    return false;
+  }
+  currentUser=user;
+  document.getElementById("adminName").textContent=p.full_name || user.email;
+  document.getElementById("avatar").textContent=(p.full_name||"A").charAt(0).toUpperCase();
+  return true;
 }
 
+async function boot(){
+  const ok=await ensureAdmin();
+  if(ok){document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";go("dashboard")}
+}
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault(); document.getElementById("error").textContent="Đang đăng nhập…";
+  const {error}=await db.auth.signInWithPassword({email:formVal("email"),password:formVal("password")});
+  if(error){document.getElementById("error").textContent=error.message;return}
+  if(!(await ensureAdmin())){document.getElementById("error").textContent="Tài khoản không có quyền admin.";return}
+  document.getElementById("login").style.display="none";document.getElementById("app").style.display="block";go("dashboard");
+});
+async function logout(){await db.auth.signOut();location.reload()}
 
-function escapeHtml(value) {
-
-    if (value === null || value === undefined)
-        return "";
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
+function navActive(page){
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+}
+async function go(page){
+  currentPage=page;navActive(page);document.getElementById("sidebar").classList.remove("open");
+  const c=document.getElementById("content");c.innerHTML='<div class="loading">Đang tải…</div>';
+  try{
+    if(page==="dashboard") return await renderDashboard();
+    if(page==="students") return await renderProfiles("student");
+    if(page==="teachers") return await renderProfiles("teacher");
+    if(page==="classes") return await renderClasses();
+    if(page==="lessons") return await renderLessons();
+    if(page==="assignments") return await renderAssignments();
+    if(page==="submissions") return await renderSubmissions();
+    if(page==="videos") return await renderVideos();
+    if(page==="tuition") return await renderTuition();
+    if(page==="feedbacks") return await renderFeedbacks();
+    if(page==="announcements") return await renderAnnouncements();
+  }catch(e){console.error(e);c.innerHTML=`<div class="panel"><div class="empty">Không tải được dữ liệu.<br><small>${esc(e.message)}</small></div></div>`}
 }
 
-
-function formatDate(date) {
-
-    if (!date)
-        return "—";
-
-    const d = new Date(date);
-
-    if (Number.isNaN(d.getTime()))
-        return "—";
-
-    return d.toLocaleDateString("vi-VN");
-
+async function count(table, extra){
+  let q=db.from(table).select("*",{count:"exact",head:true});
+  if(extra) q=extra(q); const {count,error}=await q; if(error) throw error; return count||0;
+}
+async function renderDashboard(){
+  const [students,teachers,classes,tuition,feedbacks]=await Promise.all([
+    count("profiles",q=>q.eq("role","student").eq("is_deleted",false)),
+    count("profiles",q=>q.eq("role","teacher").eq("is_deleted",false)),
+    count("classes",q=>q.eq("is_active",true)),
+    count("tuition_requests",q=>q.eq("status","pending")),
+    count("feedbacks",q=>q.eq("status","pending"))
+  ]);
+  const {data:recent}=await db.from("tuition_requests").select("id,student_id,months,status,created_at,transaction_code").order("created_at",{ascending:false}).limit(8);
+  let ids=(recent||[]).map(x=>x.student_id);
+  let names={};
+  if(ids.length){const {data:p}=await db.from("profiles").select("id,full_name,login_name").in("id",ids);(p||[]).forEach(x=>names[x.id]=x)}
+  document.getElementById("content").innerHTML=`
+    <div class="page-head"><div><div class="page-title">Tổng quan</div><div class="page-sub">Quản lý toàn bộ hệ thống LMS</div></div></div>
+    <div class="cards">
+      ${stat(students,"Học sinh")} ${stat(teachers,"Giáo viên")} ${stat(classes,"Lớp đang hoạt động")} ${stat(tuition,"Yêu cầu học phí")}
+    </div>
+    <div class="cards">${stat(feedbacks,"Câu hỏi chưa trả lời")} ${stat(await count("assignments"),"Tổng bài tập")} ${stat(await count("submissions"),"Tổng bài nộp")} ${stat(await count("monthly_videos"),"Video tháng")}</div>
+    <div class="panel"><div class="panel-head"><div class="panel-title">Yêu cầu học phí gần đây</div><button class="btn btn-light btn-sm" onclick="go('tuition')">Xem tất cả</button></div>
+    <div class="table-wrap">${recent?.length?`<table class="table"><thead><tr><th>Học sinh</th><th>Tháng</th><th>Mã GD</th><th>Trạng thái</th><th>Ngày</th></tr></thead><tbody>
+    ${recent.map(x=>`<tr><td>${esc(names[x.student_id]?.full_name||names[x.student_id]?.login_name||x.student_id.slice(0,8))}</td><td>${x.months}</td><td>${esc(x.transaction_code||"—")}</td><td>${statusBadge(x.status)}</td><td>${fmtDateTime(x.created_at)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">Chưa có yêu cầu.</div>`}</div></div>`;
+}
+function stat(n,l){return `<div class="stat"><div class="l">${l}</div><div class="n">${n}</div></div>`}
+function statusBadge(s){
+  const map={active:["Đang hoạt động","b-ok"],inactive:["Đang ẩn","b-off"],pending:["Chờ xử lý","b-warn"],approved:["Đã duyệt","b-ok"],rejected:["Từ chối","b-red"],draft:["Nháp","b-off"],published:["Đã đăng","b-ok"],closed:["Đã đóng","b-blue"],answered:["Đã trả lời","b-ok"]};
+  const a=map[s]||[s,"b-off"];return badge(a[0],a[1]);
 }
 
-
-function defaultExpiry() {
-
-    const d = new Date();
-
-    d.setDate(d.getDate() + 30);
-
-    return d.toISOString().split("T")[0];
-
+async function getProfiles(role){
+  let q=db.from("profiles").select("id,full_name,login_name,role,class_id,expired_at,is_active,is_deleted,created_at,updated_at").eq("role",role).order("created_at",{ascending:false});
+  const {data,error}=await q;if(error)throw error;return data||[];
+}
+async function getClasses(){
+  const {data,error}=await db.from("classes").select("id,class_name,teacher_id,is_active,created_at").order("created_at",{ascending:false});
+  if(error)throw error;return data||[];
+}
+async function renderProfiles(role){
+  const data=await getProfiles(role);cache.profiles=data;
+  const classes=await getClasses();cache.classes=classes;const cm={};classes.forEach(c=>cm[c.id]=c.class_name);
+  const title=role==="student"?"Học sinh":"Giáo viên";
+  document.getElementById("content").innerHTML=`
+    <div class="page-head"><div><div class="page-title">${title}</div><div class="page-sub">${data.length} tài khoản</div></div>
+    <div class="tools"><input class="search" id="profileSearch" placeholder="Tìm tên / tài khoản…" oninput="filterTable('profileTable',this.value)">${role==="student"?'<button class="btn btn-primary" onclick="studentForm()">+ Thêm hồ sơ</button>':'<button class="btn btn-primary" onclick="teacherForm()">+ Thêm hồ sơ</button>'}</div></div>
+    <div class="panel"><div class="table-wrap"><table class="table" id="profileTable"><thead><tr><th>Họ tên</th><th>Tài khoản</th><th>Lớp</th><th>Hạn học phí</th><th>Trạng thái</th><th>Tạo lúc</th><th></th></tr></thead><tbody>
+    ${data.length?data.map(p=>`<tr data-search="${esc((p.full_name+" "+p.login_name).toLowerCase())}">
+      <td><b>${esc(p.full_name)}</b></td><td>${esc(p.login_name)}</td><td>${esc(cm[p.class_id]||"Chưa xếp lớp")}</td>
+      <td>${p.expired_at?fmtDate(p.expired_at):"Không hạn"}</td>
+      <td>${p.is_deleted?badge("Đã xóa","b-red"):p.is_active?badge("Đang hoạt động","b-ok"):badge("Đang ẩn","b-off")}</td>
+      <td>${fmtDate(p.created_at)}</td><td><button class="btn btn-light btn-sm" onclick="editProfile('${p.id}')">Sửa</button></td>
+    </tr>`).join(""):`<tr><td colspan="7"><div class="empty">Chưa có hồ sơ.</div></td></tr>`}
+    </tbody></table></div></div>`;
+}
+function filterTable(id,value){
+  const v=value.toLowerCase().trim();document.querySelectorAll("#"+id+" tbody tr").forEach(tr=>tr.style.display=(!v||tr.dataset.search?.includes(v))?"":"none")
 }
 
-
-/* =========================================================
-   GỌI WORKER
-========================================================= */
-
-async function workerRequest(
-    path,
-    options = {}
-) {
-
-    const {
-        data: {
-            session
-        }
-    } = await supabaseClient.auth.getSession();
-
-
-    if (!session) {
-
-        window.location.href =
-            "index.html";
-
-        throw new Error(
-            "Phiên đăng nhập đã hết hạn."
-        );
-
+function classOptions(selected=""){
+  return `<option value="">— Chưa xếp lớp —</option>`+cache.classes.map(c=>`<option value="${c.id}" ${c.id===selected?"selected":""}>${esc(c.class_name)}${c.is_active?"":" (ẩn)"}</option>`).join("")
+}
+async function studentForm(id=null){
+  const p=id?cache.profiles.find(x=>x.id===id):null;
+  if(id&&!p){const {data}=await db.from("profiles").select("*").eq("id",id).single();Object.assign(cache.profiles,{})}
+  openModal(p?"Sửa học sinh":"Thêm hồ sơ học sinh",`
+    <div class="grid2">
+      <div class="field"><label>Họ và tên</label><input id="f_full" value="${esc(p?.full_name)}"></div>
+      <div class="field"><label>Tài khoản login_name</label><input id="f_login" value="${esc(p?.login_name)}" ${p?"disabled":""}></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Lớp</label><select id="f_class">${classOptions(p?.class_id)}</select></div>
+      <div class="field"><label>Hạn học phí</label><input id="f_expired" type="datetime-local" value="${toLocalInput(p?.expired_at)}"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Đang hoạt động</label><select id="f_active"><option value="true" ${p?.is_active!==false?"selected":""}>Có</option><option value="false" ${p?.is_active===false?"selected":""}>Không</option></select></div>
+      <div class="field"><label>Đã xóa logic</label><select id="f_deleted"><option value="false" ${!p?.is_deleted?"selected":""}>Không</option><option value="true" ${p?.is_deleted?"selected":""}>Có</option></select></div>
+    </div>
+    ${!p?'<div class="danger-note">Lưu ý: form này chỉ tạo hồ sơ profile. Auth user phải được tạo trước bằng Supabase Authentication/Worker.</div>':""}
+  `,async()=>{
+    const payload={full_name:formVal("f_full"),class_id:formVal("f_class")||null,expired_at:formVal("f_expired")?new Date(formVal("f_expired")).toISOString():null,is_active:formVal("f_active")==="true",is_deleted:formVal("f_deleted")==="true"};
+    if(!payload.full_name){toast("Vui lòng nhập họ tên.",true);return}
+    let r;
+    if(p) r=await db.from("profiles").update(payload).eq("id",p.id);
+    else {
+      payload.login_name=formVal("f_login");payload.role="student";
+      if(!payload.login_name){toast("Vui lòng nhập tài khoản.",true);return}
+      toast("Không thể tạo profile nếu Auth user chưa tồn tại.",true);return;
     }
+    if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("students");
+  });
+}
+async function teacherForm(id=null){
+  const p=id?cache.profiles.find(x=>x.id===id):null;
+  openModal(p?"Sửa giáo viên":"Thêm hồ sơ giáo viên",`
+    <div class="grid2"><div class="field"><label>Họ và tên</label><input id="f_full" value="${esc(p?.full_name)}"></div>
+    <div class="field"><label>Username</label><input id="f_login" value="${esc(p?.login_name)}" ${p?"disabled":""}></div></div>
+    <div class="grid2"><div class="field"><label>Đang hoạt động</label><select id="f_active"><option value="true" ${p?.is_active!==false?"selected":""}>Có</option><option value="false" ${p?.is_active===false?"selected":""}>Không</option></select></div>
+    <div class="field"><label>Đã xóa logic</label><select id="f_deleted"><option value="false" ${!p?.is_deleted?"selected":""}>Không</option><option value="true" ${p?.is_deleted?"selected":""}>Có</option></select></div></div>
+    ${!p?'<div class="danger-note">Chỉ tạo profile sau khi Auth user đã tồn tại.</div>':""}
+  `,async()=>{
+    const payload={full_name:formVal("f_full"),is_active:formVal("f_active")==="true",is_deleted:formVal("f_deleted")==="true"};
+    if(!p){toast("Auth user phải được tạo trước.",true);return}
+    const {error}=await db.from("profiles").update(payload).eq("id",p.id);if(error){toast(error.message,true);return}
+    closeModal();toast("Đã lưu.");go("teachers");
+  });
+}
+function editProfile(id){const p=cache.profiles.find(x=>x.id===id);p?.role==="teacher"?teacherForm(id):studentForm(id)}
+function toLocalInput(v){if(!v)return "";const d=new Date(v);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
 
-
-    const response =
-        await fetch(
-            WORKER_URL + path,
-            {
-                ...options,
-
-                headers: {
-
-                    "Content-Type":
-                        "application/json",
-
-                    "Authorization":
-                        "Bearer " +
-                        session.access_token,
-
-                    ...(options.headers || {})
-
-                }
-
-            }
-        );
-
-
-    let data = null;
-
-    const text =
-        await response.text();
-
-
-    try {
-
-        data =
-            text
-                ? JSON.parse(text)
-                : null;
-
-    } catch {
-
-        data = text;
-
-    }
-
-
-    if (
-        response.status === 401 ||
-        response.status === 403
-    ) {
-
-        await supabaseClient.auth.signOut();
-
-        window.location.href =
-            "index.html";
-
-        throw new Error(
-            "Phiên đăng nhập không hợp lệ."
-        );
-
-    }
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            data?.error ||
-            data?.message ||
-            "Worker API lỗi."
-        );
-
-    }
-
-
-    return data;
-
+async function renderClasses(){
+  const data=await getClasses();cache.classes=data;
+  const {data:teachers}=await db.from("profiles").select("id,full_name,login_name").eq("role","teacher").eq("is_deleted",false);
+  const tm={};(teachers||[]).forEach(t=>tm[t.id]=t.full_name||t.login_name);
+  document.getElementById("content").innerHTML=`<div class="page-head"><div><div class="page-title">Lớp học</div><div class="page-sub">${data.length} lớp</div></div><button class="btn btn-primary" onclick="classForm()">+ Thêm lớp</button></div>
+  <div class="panel"><div class="table-wrap"><table class="table"><thead><tr><th>Tên lớp</th><th>Giáo viên</th><th>Trạng thái</th><th>Ngày tạo</th><th></th></tr></thead><tbody>
+  ${data.length?data.map(c=>`<tr><td><b>${esc(c.class_name)}</b></td><td>${esc(tm[c.teacher_id]||"Chưa phân công")}</td><td>${c.is_active?badge("Đang hoạt động","b-ok"):badge("Đang ẩn","b-off")}</td><td>${fmtDate(c.created_at)}</td><td><button class="btn btn-light btn-sm" onclick="classForm('${c.id}')">Sửa</button> <button class="btn btn-danger btn-sm" onclick="deleteRow('classes','${c.id}','lớp học')">Xóa</button></td></tr>`).join(""):`<tr><td colspan="5"><div class="empty">Chưa có lớp.</div></td></tr>`}</tbody></table></div></div>`;
+}
+async function classForm(id=null){
+  const c=id?cache.classes.find(x=>x.id===id):null;
+  const {data:teachers}=await db.from("profiles").select("id,full_name,login_name").eq("role","teacher").eq("is_deleted",false).order("full_name");
+  openModal(c?"Sửa lớp":"Thêm lớp",`<div class="field"><label>Tên lớp</label><input id="f_name" value="${esc(c?.class_name)}"></div>
+  <div class="field"><label>Giáo viên phụ trách</label><select id="f_teacher"><option value="">— Chưa phân công —</option>${(teachers||[]).map(t=>`<option value="${t.id}" ${c?.teacher_id===t.id?"selected":""}>${esc(t.full_name||t.login_name)}</option>`).join("")}</select></div>
+  <div class="field"><label>Trạng thái</label><select id="f_active"><option value="true" ${c?.is_active!==false?"selected":""}>Đang hoạt động</option><option value="false" ${c?.is_active===false?"selected":""}>Đang ẩn</option></select></div>`,
+  async()=>{const payload={class_name:formVal("f_name"),teacher_id:formVal("f_teacher")||null,is_active:formVal("f_active")==="true"};
+  if(!payload.class_name){toast("Vui lòng nhập tên lớp.",true);return}const r=id?await db.from("classes").update(payload).eq("id",id):await db.from("classes").insert(payload);
+  if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("classes")});
 }
 
-
-/* =========================================================
-   KIỂM TRA ADMIN
-========================================================= */
-
-async function checkAdminAuth() {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.getSession();
-
-
-    if (
-        error ||
-        !data ||
-        !data.session
-    ) {
-
-        window.location.href =
-            "index.html";
-
-        return false;
-
-    }
-
-
-    const user =
-        data.session.user;
-
-
-    /*
-       KHÔNG đọc profiles trực tiếp ở đây.
-
-       Worker sẽ kiểm tra:
-
-       - JWT
-       - profile
-       - role = admin
-       - is_active
-       - is_deleted
-    */
-
-
-    try {
-
-        await workerRequest(
-            "/api/admin/dashboard"
-        );
-
-        return true;
-
-    } catch (error) {
-
-        alert(
-            error.message ||
-            "Bạn không có quyền Admin."
-        );
-
-        await supabaseClient.auth.signOut();
-
-        window.location.href =
-            "index.html";
-
-        return false;
-
-    }
-
+async function renderLessons(){
+  const {data,error}=await db.from("lessons").select("id,class_id,lesson_date,lesson_time,zoom_id,zoom_link,passcode,created_at").order("lesson_date",{ascending:false}).limit(300);
+  if(error)throw error;const classes=await getClasses();const cm={};classes.forEach(c=>cm[c.id]=c.class_name);
+  document.getElementById("content").innerHTML=tablePage("Buổi học",`${data?.length||0} buổi`,`<button class="btn btn-primary" onclick="lessonForm()">+ Thêm buổi học</button>`,
+  ["Lớp","Ngày","Giờ","Zoom ID","Link","Mật khẩu",""],
+  (data||[]).map(x=>[esc(cm[x.class_id]||"—"),fmtDate(x.lesson_date),esc(x.lesson_time),esc(x.zoom_id),x.zoom_link?`<a href="${esc(x.zoom_link)}" target="_blank">Mở</a>`:"—",esc(x.passcode),actions(`lessonForm('${x.id}')`,`deleteRow('lessons','${x.id}','buổi học')`)]));
+}
+async function lessonForm(id=null){
+  let row=null;if(id){const {data}=await db.from("lessons").select("*").eq("id",id).single();row=data}
+  const classes=await getClasses();
+  openModal(row?"Sửa buổi học":"Thêm buổi học",`<div class="grid2"><div class="field"><label>Lớp</label><select id="f_class">${classes.map(c=>`<option value="${c.id}" ${row?.class_id===c.id?"selected":""}>${esc(c.class_name)}</option>`).join("")}</select></div>
+  <div class="field"><label>Ngày</label><input id="f_date" type="date" value="${esc(row?.lesson_date)}"></div></div>
+  <div class="grid2"><div class="field"><label>Giờ học</label><input id="f_time" placeholder="19:30 - 20:20" value="${esc(row?.lesson_time)}"></div><div class="field"><label>Zoom ID</label><input id="f_zoomid" value="${esc(row?.zoom_id)}"></div></div>
+  <div class="field"><label>Zoom link</label><input id="f_link" type="url" value="${esc(row?.zoom_link)}"></div><div class="field"><label>Passcode</label><input id="f_pass" value="${esc(row?.passcode)}"></div>`,
+  async()=>{const payload={class_id:formVal("f_class"),lesson_date:formVal("f_date"),lesson_time:formVal("f_time"),zoom_id:formVal("f_zoomid"),zoom_link:formVal("f_link"),passcode:formVal("f_pass")};
+  const r=id?await db.from("lessons").update(payload).eq("id",id):await db.from("lessons").insert(payload);if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("lessons")});
 }
 
-
-/* =========================================================
-   ĐĂNG XUẤT
-========================================================= */
-
-async function handleLogout() {
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href =
-        "index.html";
-
+async function renderAssignments(){
+  const {data,error}=await db.from("assignments").select("id,class_id,title,description,assigned_date,due_date,status,created_by,created_at").order("created_at",{ascending:false});
+  if(error)throw error;const classes=await getClasses();const cm={};classes.forEach(c=>cm[c.id]=c.class_name);
+  document.getElementById("content").innerHTML=tablePage("Bài tập",`${data?.length||0} bài`,`<button class="btn btn-primary" onclick="assignmentForm()">+ Thêm bài tập</button>`,
+  ["Lớp","Tiêu đề","Ngày giao","Hạn nộp","Trạng thái",""],(data||[]).map(x=>[esc(cm[x.class_id]||"—"),`<b>${esc(x.title)}</b><br><small>${esc(short(x.description))}</small>`,fmtDate(x.assigned_date),fmtDateTime(x.due_date),statusBadge(x.status),actions(`assignmentForm('${x.id}')`,`deleteRow('assignments','${x.id}','bài tập')`)]));
+}
+async function assignmentForm(id=null){
+  let row=null;if(id){const {data}=await db.from("assignments").select("*").eq("id",id).single();row=data}
+  const classes=await getClasses();
+  openModal(row?"Sửa bài tập":"Thêm bài tập",`<div class="field"><label>Lớp</label><select id="f_class">${classes.map(c=>`<option value="${c.id}" ${row?.class_id===c.id?"selected":""}>${esc(c.class_name)}</option>`).join("")}</select></div>
+  <div class="field"><label>Tiêu đề</label><input id="f_title" value="${esc(row?.title)}"></div><div class="field"><label>Mô tả</label><textarea id="f_desc">${esc(row?.description)}</textarea></div>
+  <div class="grid2"><div class="field"><label>Ngày giao</label><input id="f_date" type="date" value="${esc(row?.assigned_date||new Date().toISOString().slice(0,10))}"></div><div class="field"><label>Hạn nộp</label><input id="f_due" type="datetime-local" value="${toLocalInput(row?.due_date)}"></div></div>
+  <div class="field"><label>Trạng thái</label><select id="f_status"><option value="draft" ${row?.status==="draft"?"selected":""}>Nháp</option><option value="published" ${row?.status==="published"?"selected":""}>Đã đăng</option><option value="closed" ${row?.status==="closed"?"selected":""}>Đã đóng</option></select></div>`,
+  async()=>{const payload={class_id:formVal("f_class"),title:formVal("f_title"),description:formVal("f_desc")||null,assigned_date:formVal("f_date"),due_date:formVal("f_due")?new Date(formVal("f_due")).toISOString():null,status:formVal("f_status")};
+  if(!payload.title){toast("Vui lòng nhập tiêu đề.",true);return}if(!id)payload.created_by=currentUser.id;
+  const r=id?await db.from("assignments").update(payload).eq("id",id):await db.from("assignments").insert(payload);if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("assignments")});
 }
 
-
-/* =========================================================
-   TOGGLE CLASS
-========================================================= */
-
-function toggleClassSelect() {
-
-    const role =
-        document.getElementById(
-            "userRole"
-        ).value;
-
-
-    document.getElementById(
-        "classSelectBox"
-    ).style.display =
-        role === "student"
-            ? "block"
-            : "none";
-
+async function renderSubmissions(){
+  const {data,error}=await db.from("submissions").select("id,assignment_id,student_id,drive_link,score,feedback,submitted_at,updated_at").order("submitted_at",{ascending:false}).limit(500);
+  if(error)throw error;const [a,p]=await Promise.all([db.from("assignments").select("id,title"),db.from("profiles").select("id,full_name,login_name")]);
+  const am={};(a.data||[]).forEach(x=>am[x.id]=x.title);const pm={};(p.data||[]).forEach(x=>pm[x.id]=x.full_name||x.login_name);
+  document.getElementById("content").innerHTML=tablePage("Bài nộp",`${data?.length||0} bài nộp`,`<button class="btn btn-light" onclick="go('assignments')">Quản lý bài tập</button>`,
+  ["Học sinh","Bài tập","Link","Điểm","Nhận xét","Nộp lúc",""],(data||[]).map(x=>[esc(pm[x.student_id]||"—"),esc(am[x.assignment_id]||"—"),`<a href="${esc(x.drive_link)}" target="_blank">Mở</a>`,x.score==null?"Chưa chấm":badge(x.score+"/10",x.score>=5?"b-ok":"b-red"),esc(short(x.feedback)),fmtDateTime(x.submitted_at),`<button class="btn btn-light btn-sm" onclick="submissionForm('${x.id}')">Chấm</button>`]));
+}
+async function submissionForm(id){
+  const {data:row}=await db.from("submissions").select("*").eq("id",id).single();
+  openModal("Chấm bài nộp",`<div class="field"><label>Link bài nộp</label><a href="${esc(row.drive_link)}" target="_blank">${esc(row.drive_link)}</a></div>
+  <div class="field"><label>Điểm (0–10)</label><input id="f_score" type="number" min="0" max="10" step="0.01" value="${row.score??""}"></div>
+  <div class="field"><label>Nhận xét</label><textarea id="f_feedback">${esc(row.feedback)}</textarea></div>`,
+  async()=>{const score=formNum("f_score");if(score!==null&&(score<0||score>10)){toast("Điểm phải từ 0 đến 10.",true);return}
+  const {error}=await db.from("submissions").update({score,feedback:formVal("f_feedback")||null}).eq("id",id);if(error){toast(error.message,true);return}closeModal();toast("Đã chấm.");go("submissions")});
 }
 
-
-/* =========================================================
-   TẠO LỚP
-========================================================= */
-
-async function handleCreateClass(event) {
-
-    event.preventDefault();
-
-
-    const input =
-        document.getElementById(
-            "className"
-        );
-
-
-    const teacher =
-        document.getElementById(
-            "teacherSelect"
-        );
-
-
-    const className =
-        input.value.trim();
-
-
-    if (!className) {
-
-        showMessage(
-            "Tên lớp không được để trống.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    const button =
-        document.getElementById(
-            "btnCreateClass"
-        );
-
-
-    button.disabled = true;
-
-    button.textContent =
-        "Đang tạo...";
-
-
-    try {
-
-        await workerRequest(
-            "/api/admin/classes",
-            {
-                method: "POST",
-
-                body: JSON.stringify({
-
-                    class_name:
-                        className,
-
-                    teacher_id:
-                        teacher.value || null
-
-                })
-
-            }
-        );
-
-
-        input.value = "";
-
-        showMessage(
-            "Đã tạo lớp thành công."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi tạo lớp: " +
-            error.message,
-            "error"
-        );
-
-    } finally {
-
-        button.disabled = false;
-
-        button.textContent =
-            "Tạo Lớp Học";
-
-    }
-
+async function renderVideos(){
+  const {data,error}=await db.from("monthly_videos").select("*").order("created_at",{ascending:false});
+  if(error)throw error;const {data:p}=await db.from("profiles").select("id,full_name,login_name");const pm={};(p||[]).forEach(x=>pm[x.id]=x.full_name||x.login_name);
+  document.getElementById("content").innerHTML=tablePage("Video tháng",`${data?.length||0} video`,`<button class="btn btn-primary" onclick="videoForm()">+ Thêm video</button>`,
+  ["Học sinh","Tiêu đề","YouTube","Ghi chú","Ngày tạo",""],(data||[]).map(x=>[esc(pm[x.student_id]||"—"),esc(x.title),`<a href="${esc(x.youtube_url)}" target="_blank">Xem</a>`,esc(short(x.note)),fmtDate(x.created_at),actions(`videoForm('${x.id}')`,`deleteRow('monthly_videos','${x.id}','video')`)]));
+}
+async function videoForm(id=null){
+  let row=null;if(id){const {data}=await db.from("monthly_videos").select("*").eq("id",id).single();row=data}
+  const {data:p}=await db.from("profiles").select("id,full_name,login_name").eq("role","student").eq("is_deleted",false).order("full_name");
+  openModal(row?"Sửa video":"Thêm video",`<div class="field"><label>Học sinh</label><select id="f_student">${(p||[]).map(x=>`<option value="${x.id}" ${row?.student_id===x.id?"selected":""}>${esc(x.full_name||x.login_name)}</option>`).join("")}</select></div>
+  <div class="field"><label>Tiêu đề</label><input id="f_title" value="${esc(row?.title)}"></div><div class="field"><label>YouTube URL</label><input id="f_url" type="url" value="${esc(row?.youtube_url)}"></div>
+  <div class="field"><label>Ghi chú</label><textarea id="f_note">${esc(row?.note)}</textarea></div>`,
+  async()=>{const payload={student_id:formVal("f_student"),title:formVal("f_title"),youtube_url:formVal("f_url"),note:formVal("f_note")||null};const r=id?await db.from("monthly_videos").update(payload).eq("id",id):await db.from("monthly_videos").insert(payload);
+  if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("videos")});
 }
 
-
-/* =========================================================
-   BÀN GIAO GIÁO VIÊN
-========================================================= */
-
-async function reassignTeacher() {
-
-    const classId =
-        document.getElementById(
-            "classToReassign"
-        ).value;
-
-
-    const teacherId =
-        document.getElementById(
-            "newTeacherForClass"
-        ).value;
-
-
-    if (!classId) {
-
-        showMessage(
-            "Vui lòng chọn lớp.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    try {
-
-        await workerRequest(
-            `/api/admin/classes/${encodeURIComponent(classId)}/teacher`,
-            {
-                method: "PUT",
-
-                body: JSON.stringify({
-
-                    teacher_id:
-                        teacherId || null
-
-                })
-
-            }
-        );
-
-
-        showMessage(
-            "Đã cập nhật giáo viên phụ trách."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi bàn giao: " +
-            error.message,
-            "error"
-        );
-
-    }
-
+async function renderTuition(){
+  const {data,error}=await db.from("tuition_requests").select("*").order("created_at",{ascending:false});
+  if(error)throw error;const {data:p}=await db.from("profiles").select("id,full_name,login_name");const pm={};(p||[]).forEach(x=>pm[x.id]=x.full_name||x.login_name);
+  document.getElementById("content").innerHTML=tablePage("Yêu cầu học phí",`${data?.length||0} yêu cầu`,"",
+  ["Học sinh","Số tháng","Mã giao dịch","Trạng thái","Ngày",""],(data||[]).map(x=>[esc(pm[x.student_id]||"—"),x.months,esc(x.transaction_code||"—"),statusBadge(x.status),fmtDateTime(x.created_at),`<button class="btn btn-light btn-sm" onclick="tuitionForm('${x.id}')">Xử lý</button>`]));
+}
+async function tuitionForm(id){
+  const {data:row}=await db.from("tuition_requests").select("*").eq("id",id).single();
+  openModal("Xử lý yêu cầu học phí",`<div class="grid2"><div class="field"><label>Số tháng</label><input value="${row.months}" disabled></div><div class="field"><label>Mã giao dịch</label><input value="${esc(row.transaction_code||"")}" disabled></div></div>
+  <div class="field"><label>Trạng thái</label><select id="f_status"><option value="pending" ${row.status==="pending"?"selected":""}>Chờ xử lý</option><option value="approved" ${row.status==="approved"?"selected":""}>Đã duyệt</option><option value="rejected" ${row.status==="rejected"?"selected":""}>Từ chối</option></select></div>`,
+  async()=>{const s=formVal("f_status");const {error}=await db.from("tuition_requests").update({status:s}).eq("id",id);if(error){toast(error.message,true);return}closeModal();toast("Đã cập nhật.");go("tuition")});
 }
 
-
-/* =========================================================
-   TẠO USER
-========================================================= */
-
-async function handleCreateUser(event) {
-
-    event.preventDefault();
-
-
-    const fullName =
-        document.getElementById(
-            "fullName"
-        ).value.trim();
-
-
-    const phone =
-        document.getElementById(
-            "userPhone"
-        ).value.trim();
-
-
-    const role =
-        document.getElementById(
-            "userRole"
-        ).value;
-
-
-    const classId =
-        document.getElementById(
-            "userClass"
-        ).value || null;
-
-
-    const expiredAt =
-        document.getElementById(
-            "expiredAt"
-        ).value;
-
-
-    const button =
-        document.getElementById(
-            "btnCreateUser"
-        );
-
-
-    if (!fullName || !phone) {
-
-        showMessage(
-            "Vui lòng nhập đầy đủ họ tên và số điện thoại.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    button.disabled = true;
-
-    button.textContent =
-        "Đang tạo tài khoản...";
-
-
-    try {
-
-        const result =
-            await workerRequest(
-                "/api/admin/users",
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-
-                        full_name:
-                            fullName,
-
-                        phone:
-                            phone,
-
-                        role:
-                            role,
-
-                        class_id:
-                            role === "student"
-                                ? classId
-                                : null,
-
-                        expired_at:
-                            expiredAt || null
-
-                    })
-
-                }
-            );
-
-
-        const user =
-            result.user;
-
-
-        alert(
-            "TẠO TÀI KHOẢN THÀNH CÔNG\n\n" +
-            "Họ tên: " +
-            user.full_name +
-            "\n" +
-            "Đăng nhập: " +
-            user.login_phone +
-            "\n" +
-            "Mật khẩu: " +
-            user.password
-        );
-
-
-        document.getElementById(
-            "fullName"
-        ).value = "";
-
-
-        document.getElementById(
-            "userPhone"
-        ).value = "";
-
-
-        showMessage(
-            "Đã tạo tài khoản thành công."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi tạo tài khoản: " +
-            error.message,
-            "error"
-        );
-
-    } finally {
-
-        button.disabled = false;
-
-        button.textContent =
-            "Tạo Tài Khoản";
-
-    }
-
+async function renderFeedbacks(){
+  const {data,error}=await db.from("feedbacks").select("*").order("created_at",{ascending:false});
+  if(error)throw error;const [p,a]=await Promise.all([db.from("profiles").select("id,full_name,login_name"),db.from("assignments").select("id,title")]);
+  const pm={};(p.data||[]).forEach(x=>pm[x.id]=x.full_name||x.login_name);const am={};(a.data||[]).forEach(x=>am[x.id]=x.title);
+  document.getElementById("content").innerHTML=tablePage("Hỏi đáp",`${data?.length||0} câu hỏi`,"",
+  ["Học sinh","Bài tập","Câu hỏi","Trả lời","Trạng thái","Ngày",""],(data||[]).map(x=>[esc(pm[x.student_id]||"—"),esc(am[x.assignment_id]||"Chung"),`<div style="white-space:normal;min-width:220px">${esc(x.question)}</div>`,`<div style="white-space:normal;min-width:220px">${esc(short(x.answer))}</div>`,statusBadge(x.status),fmtDateTime(x.created_at),`<button class="btn btn-light btn-sm" onclick="feedbackForm('${x.id}')">Trả lời</button>`]));
+}
+async function feedbackForm(id){
+  const {data:row}=await db.from("feedbacks").select("*").eq("id",id).single();
+  openModal("Trả lời học sinh",`<div class="field"><label>Câu hỏi</label><div style="padding:12px;background:#f6f8f8;border-radius:10px">${esc(row.question)}</div></div><div class="field"><label>Câu trả lời</label><textarea id="f_answer">${esc(row.answer)}</textarea></div>`,
+  async()=>{const answer=formVal("f_answer");const {error}=await db.from("feedbacks").update({answer:answer||null,status:answer?"answered":"pending"}).eq("id",id);if(error){toast(error.message,true);return}closeModal();toast("Đã trả lời.");go("feedbacks")});
 }
 
-
-/* =========================================================
-   RESET PASSWORD
-========================================================= */
-
-async function resetUserPassword(
-    userId,
-    userName
-) {
-
-    if (
-        !confirm(
-            `Reset mật khẩu cho "${userName}"?`
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const result =
-            await workerRequest(
-                `/api/admin/users/${encodeURIComponent(userId)}/reset-password`,
-                {
-                    method: "POST"
-                }
-            );
-
-
-        alert(
-            "ĐÃ RESET MẬT KHẨU\n\n" +
-            "Tài khoản: " +
-            userName +
-            "\n" +
-            "Mật khẩu mới: " +
-            result.new_password
-        );
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi reset mật khẩu: " +
-            error.message,
-            "error"
-        );
-
-    }
-
+async function renderAnnouncements(){
+  const {data,error}=await db.from("announcements").select("*").order("created_at",{ascending:false});
+  if(error)throw error;const classes=await getClasses();const cm={};classes.forEach(c=>cm[c.id]=c.class_name);
+  document.getElementById("content").innerHTML=tablePage("Thông báo",`${data?.length||0} thông báo`,`<button class="btn btn-primary" onclick="announcementForm()">+ Thêm thông báo</button>`,
+  ["Lớp","Tiêu đề","Nội dung","Trạng thái","Ngày",""],(data||[]).map(x=>[esc(cm[x.class_id]||"—"),`<b>${esc(x.title)}</b>`,`<div style="white-space:normal;min-width:240px">${esc(short(x.content))}</div>`,statusBadge(x.status),fmtDateTime(x.created_at),actions(`announcementForm('${x.id}')`,`deleteRow('announcements','${x.id}','thông báo')`)]));
+}
+async function announcementForm(id=null){
+  let row=null;if(id){const {data}=await db.from("announcements").select("*").eq("id",id).single();row=data}
+  const classes=await getClasses();
+  openModal(row?"Sửa thông báo":"Thêm thông báo",`<div class="field"><label>Lớp</label><select id="f_class">${classes.map(c=>`<option value="${c.id}" ${row?.class_id===c.id?"selected":""}>${esc(c.class_name)}</option>`).join("")}</select></div>
+  <div class="field"><label>Tiêu đề</label><input id="f_title" value="${esc(row?.title)}"></div><div class="field"><label>Nội dung</label><textarea id="f_content">${esc(row?.content)}</textarea></div>
+  <div class="field"><label>Trạng thái</label><select id="f_status"><option value="draft" ${row?.status==="draft"?"selected":""}>Nháp</option><option value="published" ${row?.status==="published"?"selected":""}>Đã đăng</option><option value="closed" ${row?.status==="closed"?"selected":""}>Đã đóng</option></select></div>`,
+  async()=>{const payload={class_id:formVal("f_class"),title:formVal("f_title"),content:formVal("f_content"),status:formVal("f_status")};if(!id)payload.created_by=currentUser.id;
+  const r=id?await db.from("announcements").update(payload).eq("id",id):await db.from("announcements").insert(payload);if(r.error){toast(r.error.message,true);return}closeModal();toast("Đã lưu.");go("announcements")});
 }
 
-
-/* =========================================================
-   BẬT / TẮT GIÁO VIÊN
-========================================================= */
-
-async function toggleTeacher(
-    userId,
-    active
-) {
-
-    try {
-
-        await workerRequest(
-            `/api/admin/users/${encodeURIComponent(userId)}/status`,
-            {
-                method: "PUT",
-
-                body: JSON.stringify({
-
-                    is_active:
-                        active
-
-                })
-
-            }
-        );
-
-
-        showMessage(
-            active
-                ? "Đã kích hoạt giáo viên."
-                : "Đã khóa giáo viên."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "error"
-        );
-
-    }
-
+function tablePage(title,sub,tools,headers,rows){
+ return `<div class="page-head"><div><div class="page-title">${title}</div><div class="page-sub">${sub}</div></div><div class="tools">${tools||""}</div></div>
+ <div class="panel"><div class="table-wrap">${rows.length?`<table class="table"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</tbody></table>`:`<div class="empty">Chưa có dữ liệu.</div>`}</div></div>`;
+}
+function actions(edit,del){return `<button class="btn btn-light btn-sm" onclick="${edit}">Sửa</button> <button class="btn btn-danger btn-sm" onclick="${del}">Xóa</button>`}
+async function deleteRow(table,id,label){
+ if(!confirm(`Xóa ${label} này?\n\nĐây là DELETE thật trong database. Chỉ xác nhận nếu bạn chắc chắn.`))return;
+ const {error}=await db.from(table).delete().eq("id",id);if(error){toast(error.message,true);return}toast("Đã xóa.");go(currentPage);
 }
 
-
-/* =========================================================
-   BẬT / TẮT LỚP
-========================================================= */
-
-async function toggleClass(
-    classId,
-    active
-) {
-
-    try {
-
-        await workerRequest(
-            `/api/admin/classes/${encodeURIComponent(classId)}/status`,
-            {
-                method: "PUT",
-
-                body: JSON.stringify({
-
-                    is_active:
-                        active
-
-                })
-
-            }
-        );
-
-
-        showMessage(
-            active
-                ? "Đã bật lớp."
-                : "Đã tắt lớp."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   ẨN / KHÔI PHỤC HỌC SINH
-========================================================= */
-
-async function toggleDelete(
-    studentId,
-    status
-) {
-
-    try {
-
-        await workerRequest(
-            `/api/admin/students/${encodeURIComponent(studentId)}/status`,
-            {
-                method: "PUT",
-
-                body: JSON.stringify({
-
-                    is_deleted:
-                        status
-
-                })
-
-            }
-        );
-
-
-        showMessage(
-            status
-                ? "Đã ẩn học sinh."
-                : "Đã khôi phục học sinh."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   XÓA VĨNH VIỄN
-========================================================= */
-
-async function hardDelete(
-    studentId,
-    studentName
-) {
-
-    const confirmed =
-        confirm(
-            "CẢNH BÁO!\n\n" +
-            `Bạn chắc chắn muốn XÓA VĨNH VIỄN "${studentName}"?\n\n` +
-            "Hành động này sẽ xóa tài khoản Auth và profile."
-        );
-
-
-    if (!confirmed)
-        return;
-
-
-    try {
-
-        await workerRequest(
-            `/api/admin/students/${encodeURIComponent(studentId)}`,
-            {
-                method: "DELETE"
-            }
-        );
-
-
-        showMessage(
-            "Đã xóa vĩnh viễn học sinh."
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi xóa: " +
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   GIA HẠN HỌC PHÍ
-========================================================= */
-
-async function extendTuition(
-    studentId,
-    months = 1
-) {
-
-    if (
-        !confirm(
-            `Gia hạn thêm ${months} tháng?`
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const result =
-            await workerRequest(
-                `/api/admin/students/${encodeURIComponent(studentId)}/extend`,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-
-                        months
-
-                    })
-
-                }
-            );
-
-
-        showMessage(
-            `Đã gia hạn thành công đến ${formatDate(result.new_expired_at)}.`
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi gia hạn: " +
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   DUYỆT HỌC PHÍ
-========================================================= */
-
-async function approveTuition(
-    requestId,
-    months
-) {
-
-    if (
-        !confirm(
-            `Duyệt yêu cầu và gia hạn ${months} tháng?`
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const result =
-            await workerRequest(
-                `/api/admin/tuition/${encodeURIComponent(requestId)}/approve`,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-
-                        months
-
-                    })
-
-                }
-            );
-
-
-        showMessage(
-            `Đã duyệt học phí. Hạn mới: ${formatDate(result.new_expired_at)}`
-        );
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Lỗi duyệt học phí: " +
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD DATA
-========================================================= */
-
-async function loadData() {
-
-    try {
-
-        const result =
-            await workerRequest(
-                "/api/admin/dashboard"
-            );
-
-
-        renderTeachers(
-            result.teachers || []
-        );
-
-
-        renderStudents(
-            result.students || []
-        );
-
-
-        renderClasses(
-            result.classes || [],
-            result.teachers || []
-        );
-
-
-        renderTuition(
-            result.tuition_requests || []
-        );
-
-
-        fillSelects(
-            result.classes || [],
-            result.teachers || []
-        );
-
-
-        lucide.createIcons();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Không thể tải dữ liệu Admin: " +
-            error.message,
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER TEACHERS
-========================================================= */
-
-function renderTeachers(
-    teachers
-) {
-
-    const table =
-        document.getElementById(
-            "teacherTable"
-        );
-
-
-    if (!teachers.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="3"
-                    class="py-6 text-center text-slate-400">
-                    Chưa có giáo viên.
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        teachers.map(t => {
-
-            const active =
-                t.is_active !== false;
-
-
-            return `
-
-            <tr class="hover:bg-slate-50">
-
-                <td class="py-3 px-4 font-bold">
-                    ${escapeHtml(t.full_name)}
-                </td>
-
-
-                <td class="py-3 px-4">
-
-                    ${
-                        active
-
-                        ? `
-                        <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
-                            Đang hoạt động
-                        </span>
-                        `
-
-                        : `
-                        <span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">
-                            Đã khóa
-                        </span>
-                        `
-                    }
-
-                </td>
-
-
-                <td class="py-3 px-4 text-right">
-
-                    <div class="flex justify-end gap-2">
-
-                        <button
-                            onclick="resetUserPassword(
-                                '${t.id}',
-                                '${escapeHtml(t.full_name)}'
-                            )"
-                            class="text-xs bg-amber-50 text-amber-700 font-bold px-3 py-1.5 rounded-lg"
-                        >
-                            Reset Pass
-                        </button>
-
-
-                        <button
-                            onclick="toggleTeacher(
-                                '${t.id}',
-                                ${!active}
-                            )"
-                            class="text-xs ${
-                                active
-                                ? "bg-red-50 text-red-600"
-                                : "bg-green-50 text-green-600"
-                            } font-bold px-3 py-1.5 rounded-lg"
-                        >
-                            ${
-                                active
-                                ? "Khóa"
-                                : "Kích hoạt"
-                            }
-                        </button>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   RENDER STUDENTS
-========================================================= */
-
-function renderStudents(
-    students
-) {
-
-    const table =
-        document.getElementById(
-            "studentTable"
-        );
-
-
-    if (!students.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="5"
-                    class="py-6 text-center text-slate-400">
-                    Chưa có học sinh.
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    const now =
-        new Date();
-
-
-    table.innerHTML =
-        students.map(s => {
-
-            const expired =
-                s.expired_at &&
-                new Date(s.expired_at) < now;
-
-
-            let status;
-
-
-            if (s.is_deleted) {
-
-                status = `
-                    <span class="text-xs bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
-                        Đã ẩn
-                    </span>
-                `;
-
-            } else if (expired) {
-
-                status = `
-                    <span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">
-                        Quá hạn
-                    </span>
-                `;
-
-            } else {
-
-                status = `
-                    <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
-                        Đang học
-                    </span>
-                `;
-
-            }
-
-
-            const className =
-                s.classes?.class_name ||
-                "Chưa xếp lớp";
-
-
-            return `
-
-            <tr class="hover:bg-slate-50">
-
-                <td class="py-3 px-4 font-bold ${
-                    s.is_deleted
-                    ? "line-through text-slate-400"
-                    : ""
-                }">
-                    ${escapeHtml(s.full_name)}
-                </td>
-
-
-                <td class="py-3 px-4 text-slate-600">
-                    ${escapeHtml(className)}
-                </td>
-
-
-                <td class="py-3 px-4 font-medium ${
-                    expired
-                    ? "text-red-600 font-bold"
-                    : ""
-                }">
-                    ${formatDate(s.expired_at)}
-                </td>
-
-
-                <td class="py-3 px-4">
-                    ${status}
-                </td>
-
-
-                <td class="py-3 px-4">
-
-                    <div class="flex justify-end flex-wrap gap-1">
-
-                        <button
-                            onclick="extendTuition(
-                                '${s.id}',
-                                1
-                            )"
-                            class="text-xs bg-blue-50 text-blue-600 font-bold px-2 py-1.5 rounded-lg"
-                        >
-                            +1 Tháng
-                        </button>
-
-
-                        <button
-                            onclick="resetUserPassword(
-                                '${s.id}',
-                                '${escapeHtml(s.full_name)}'
-                            )"
-                            class="text-xs bg-amber-50 text-amber-700 font-bold px-2 py-1.5 rounded-lg"
-                        >
-                            Reset Pass
-                        </button>
-
-
-                        ${
-                            s.is_deleted
-
-                            ? `
-
-                            <button
-                                onclick="toggleDelete(
-                                    '${s.id}',
-                                    false
-                                )"
-                                class="text-xs bg-green-50 text-green-600 font-bold px-2 py-1.5 rounded-lg"
-                            >
-                                Khôi phục
-                            </button>
-
-                            `
-
-                            : `
-
-                            <button
-                                onclick="toggleDelete(
-                                    '${s.id}',
-                                    true
-                                )"
-                                class="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-1.5 rounded-lg"
-                            >
-                                Ẩn
-                            </button>
-
-                            `
-                        }
-
-
-                        <button
-                            onclick="hardDelete(
-                                '${s.id}',
-                                '${escapeHtml(s.full_name)}'
-                            )"
-                            class="text-xs bg-red-50 text-red-600 font-bold px-2 py-1.5 rounded-lg"
-                        >
-                            Xóa Vĩnh Viễn
-                        </button>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   RENDER CLASSES
-========================================================= */
-
-function renderClasses(
-    classes,
-    teachers
-) {
-
-    const table =
-        document.getElementById(
-            "classTable"
-        );
-
-
-    const teacherMap = {};
-
-
-    teachers.forEach(t => {
-
-        teacherMap[t.id] =
-            t.full_name;
-
-    });
-
-
-    if (!classes.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="4"
-                    class="py-6 text-center text-slate-400">
-                    Chưa có lớp học.
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        classes.map(c => {
-
-            const active =
-                c.is_active !== false;
-
-
-            return `
-
-            <tr class="hover:bg-slate-50">
-
-                <td class="py-3 px-4 font-bold">
-                    ${escapeHtml(c.class_name)}
-                </td>
-
-
-                <td class="py-3 px-4">
-                    ${
-                        teacherMap[c.teacher_id]
-                        ? escapeHtml(
-                            teacherMap[c.teacher_id]
-                        )
-                        : "Chưa phân công"
-                    }
-                </td>
-
-
-                <td class="py-3 px-4">
-
-                    ${
-                        active
-
-                        ? `
-                        <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
-                            Đang hoạt động
-                        </span>
-                        `
-
-                        : `
-                        <span class="text-xs bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
-                            Đã tắt
-                        </span>
-                        `
-                    }
-
-                </td>
-
-
-                <td class="py-3 px-4 text-right">
-
-                    <button
-                        onclick="toggleClass(
-                            '${c.id}',
-                            ${!active}
-                        )"
-                        class="text-xs ${
-                            active
-                            ? "bg-red-50 text-red-600"
-                            : "bg-green-50 text-green-600"
-                        } font-bold px-3 py-1.5 rounded-lg"
-                    >
-                        ${
-                            active
-                            ? "Tắt lớp"
-                            : "Bật lớp"
-                        }
-                    </button>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   RENDER TUITION
-========================================================= */
-
-function renderTuition(
-    requests
-) {
-
-    const table =
-        document.getElementById(
-            "tuitionTable"
-        );
-
-
-    document.getElementById(
-        "pendingCount"
-    ).textContent =
-        `${requests.length} yêu cầu`;
-
-
-    if (!requests.length) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="6"
-                    class="py-6 text-center text-slate-400">
-                    Không có yêu cầu học phí chờ duyệt.
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    table.innerHTML =
-        requests.map(r => {
-
-            const profile =
-                r.profiles || {};
-
-
-            const className =
-                profile.classes?.class_name ||
-                "Chưa xếp lớp";
-
-
-            const months =
-                Number(r.months || 1);
-
-
-            return `
-
-            <tr class="hover:bg-slate-50">
-
-                <td class="py-3 px-4 font-bold">
-                    ${escapeHtml(
-                        profile.full_name ||
-                        "Học sinh"
-                    )}
-                </td>
-
-
-                <td class="py-3 px-4">
-                    ${escapeHtml(className)}
-                </td>
-
-
-                <td class="py-3 px-4 font-bold text-blue-600">
-                    +${months} tháng
-                </td>
-
-
-                <td class="py-3 px-4 font-mono text-xs">
-                    ${escapeHtml(
-                        r.transaction_code ||
-                        "Chuyển khoản"
-                    )}
-                </td>
-
-
-                <td class="py-3 px-4 text-xs">
-                    ${formatDate(r.created_at)}
-                </td>
-
-
-                <td class="py-3 px-4 text-right">
-
-                    <button
-                        onclick="approveTuition(
-                            '${r.id}',
-                            ${months}
-                        )"
-                        class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-xl font-bold"
-                    >
-                        Duyệt Gia Hạn
-                    </button>
-
-                </td>
-
-            </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* =========================================================
-   SELECT OPTIONS
-========================================================= */
-
-function fillSelects(
-    classes,
-    teachers
-) {
-
-    const classOptions =
-        classes.map(c => {
-
-            return `
-                <option value="${c.id}">
-                    ${escapeHtml(c.class_name)}
-                </option>
-            `;
-
-        }).join("");
-
-
-    const teacherOptions =
-        teachers.map(t => {
-
-            return `
-                <option value="${t.id}">
-                    ${escapeHtml(t.full_name)}
-                </option>
-            `;
-
-        }).join("");
-
-
-    document.getElementById(
-        "userClass"
-    ).innerHTML =
-        `<option value="">
-            -- Chọn lớp --
-        </option>` +
-        classOptions;
-
-
-    document.getElementById(
-        "classToReassign"
-    ).innerHTML =
-        `<option value="">
-            -- Chọn lớp --
-        </option>` +
-        classOptions;
-
-
-    document.getElementById(
-        "teacherSelect"
-    ).innerHTML =
-        `<option value="">
-            -- Chưa phân công --
-        </option>` +
-        teacherOptions;
-
-
-    document.getElementById(
-        "newTeacherForClass"
-    ).innerHTML =
-        `<option value="">
-            -- Chưa phân công --
-        </option>` +
-        teacherOptions;
-
-}
-
-
-/* =========================================================
-   KHỞI ĐỘNG
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
-
-        lucide.createIcons();
-
-
-        document.getElementById(
-            "expiredAt"
-        ).value =
-            defaultExpiry();
-
-
-        toggleClassSelect();
-
-
-        const isAdmin =
-            await checkAdminAuth();
-
-
-        if (!isAdmin)
-            return;
-
-
-        await loadData();
-
-    }
-);
-
+db.auth.onAuthStateChange((event,session)=>{
+ if(event==="SIGNED_OUT"){document.getElementById("login").style.display="grid";document.getElementById("app").style.display="none"}
+});
+boot();
 </script>
-
 </body>
 </html>
