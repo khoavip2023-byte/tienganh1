@@ -3,205 +3,801 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Tiếng Anh Thật Vui - Khóa Học Giao Tiếp Cấp 2 & Cấp 3</title>
-    
-    <!-- 1. Tailwind CSS CDN (Giao diện) -->
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. Thư viện Supabase JS SDK (BẮT BUỘC TẢI ĐẦU TIÊN TRONG HEAD) -->
+
+    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 3. Lucide Icons -->
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
 
-    <!-- THANH NAV TRÊN CÙNG -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
             <div class="flex items-center space-x-2">
+
                 <div class="bg-blue-600 text-white p-2 rounded-xl">
                     <i data-lucide="sparkles" class="w-6 h-6"></i>
                 </div>
+
                 <div>
-                    <span class="font-bold text-lg text-slate-900 block leading-tight">tienganhthatvui.com</span>
-                    <span class="text-xs text-blue-600 font-semibold">Chương Trình Giao Tiếp Quốc Tế</span>
+                    <span class="font-bold text-lg text-slate-900 block leading-tight">
+                        tienganhthatvui.com
+                    </span>
+
+                    <span class="text-xs text-blue-600 font-semibold">
+                        Chương Trình Giao Tiếp Quốc Tế
+                    </span>
                 </div>
+
             </div>
-            <a href="#loginSection" class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold px-4 py-2 rounded-xl text-sm transition">
+
+            <a
+                href="#loginSection"
+                class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold px-4 py-2 rounded-xl text-sm transition"
+            >
                 Đăng Nhập
             </a>
+
         </div>
     </header>
 
-    <!-- KHU VỰC HERO / QUẢNG BÁ KHÓA HỌC -->
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
     <main class="max-w-6xl mx-auto px-4 py-10 space-y-12 flex-1">
-        
+
         <section class="grid md:grid-cols-2 gap-8 items-center">
+
+            <!-- HERO -->
+
             <div class="space-y-4 text-center md:text-left">
+
                 <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                     Dành Cho Học Sinh Cấp 2 & Cấp 3
                 </span>
+
                 <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight">
-                    Bứt Phá Phản Xạ <br><span class="text-blue-600">Tiếng Anh Giao Tiếp</span>
+                    Bứt Phá Phản Xạ
+                    <br>
+                    <span class="text-blue-600">
+                        Tiếng Anh Giao Tiếp
+                    </span>
                 </h1>
+
                 <p class="text-slate-600 text-sm md:text-base">
-                    Luyện phản xạ thực chiến với Giáo viên Nước ngoài. Mô hình học tập hiện đại, theo sát tiến độ từng bài tập và nhận video sửa lỗi chi tiết 1-1.
+                    Luyện phản xạ thực chiến với Giáo viên Nước ngoài.
+                    Mô hình học tập hiện đại, theo sát tiến độ từng bài tập
+                    và nhận video sửa lỗi chi tiết 1-1.
                 </p>
+
                 <div class="pt-2 flex flex-wrap gap-4 justify-center md:justify-start text-xs font-semibold text-slate-600">
-                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Lịch học Zoom tương tác</span>
-                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Sửa bài tập Drive 1-1</span>
-                    <span class="flex items-center gap-1"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Nhận xét Video hàng tháng</span>
+
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
+                        Lịch học Zoom tương tác
+                    </span>
+
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
+                        Sửa bài tập Drive 1-1
+                    </span>
+
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i>
+                        Nhận xét Video hàng tháng
+                    </span>
+
                 </div>
+
             </div>
 
-            <!-- FORM ĐĂNG NHẬP -->
-            <div id="loginSection" class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto w-full">
+
+            <!-- =================================================
+                 LOGIN FORM
+            ================================================== -->
+
+            <div
+                id="loginSection"
+                class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto w-full"
+            >
+
                 <div class="text-center mb-6">
-                    <h2 class="text-xl font-bold text-slate-900">Cổng Đăng Nhập Học Viên</h2>
-                    <p class="text-xs text-slate-500 mt-1">Sử dụng Số điện thoại/Email đã đăng ký để vào lớp</p>
+
+                    <h2 class="text-xl font-bold text-slate-900">
+                        Cổng Đăng Nhập Học Viên
+                    </h2>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Sử dụng Số điện thoại/Email đã đăng ký để vào lớp
+                    </p>
+
                 </div>
 
-                <!-- THÔNG BÁO LỖI -->
-                <div id="loginError" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl font-medium"></div>
 
-                <form onsubmit="handleLogin(event)" class="space-y-4">
+                <!-- THÔNG BÁO -->
+
+                <div
+                    id="loginError"
+                    class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl font-medium"
+                ></div>
+
+
+                <!-- FORM -->
+
+                <form id="loginForm" class="space-y-4">
+
+                    <!-- EMAIL / PHONE -->
+
                     <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Số điện thoại / Email đăng ký</label>
+
+                        <label class="block text-xs font-medium text-slate-700 mb-1">
+                            Số điện thoại / Email đăng ký
+                        </label>
+
                         <div class="relative">
-                            <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
-                            <input type="text" id="phone" required placeholder="0912345678 hoặc email@..." 
-                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+
+                            <i
+                                data-lucide="user"
+                                class="w-5 h-5 absolute left-3 top-3 text-slate-400"
+                            ></i>
+
+                            <input
+                                type="text"
+                                id="phone"
+                                required
+                                autocomplete="username"
+                                placeholder="0912345678 hoặc email@..."
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            >
+
                         </div>
+
                     </div>
 
+
+                    <!-- PASSWORD -->
+
                     <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Mật khẩu</label>
+
+                        <label class="block text-xs font-medium text-slate-700 mb-1">
+                            Mật khẩu
+                        </label>
+
                         <div class="relative">
-                            <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
-                            <input type="password" id="password" required placeholder="••••••••" 
-                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+
+                            <i
+                                data-lucide="lock"
+                                class="w-5 h-5 absolute left-3 top-3 text-slate-400"
+                            ></i>
+
+                            <input
+                                type="password"
+                                id="password"
+                                required
+                                autocomplete="current-password"
+                                placeholder="••••••••"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            >
+
                         </div>
+
                     </div>
 
-                    <button type="submit" id="btnLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/20 text-sm">
+
+                    <!-- LOGIN BUTTON -->
+
+                    <button
+                        type="submit"
+                        id="btnLogin"
+                        class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition shadow-lg shadow-blue-500/20 text-sm"
+                    >
                         Đăng Nhập Vào Học
                     </button>
+
                 </form>
-                
+
+
                 <p class="text-center text-xs text-slate-400 mt-4">
-                    Quên mật khẩu hoặc cần hỗ trợ? Vui lòng liên hệ Hotline/Zalo của trung tâm.
+                    Quên mật khẩu hoặc cần hỗ trợ?
+                    Vui lòng liên hệ Hotline/Zalo của trung tâm.
                 </p>
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- FOOTER TINH GỌN -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 space-y-1">
-        <p class="font-semibold text-slate-700">Hệ Thống Quản Lý Học Tập LMS - tienganhthatvui.com</p>
-        <p>© 2026 Bản quyền thuộc về Tiếng Anh Thật Vui. Vận hành miễn phí trên Cloudflare Pages & Supabase.</p>
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer
+        class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 space-y-1"
+    >
+
+        <p class="font-semibold text-slate-700">
+            Hệ Thống Quản Lý Học Tập LMS - tienganhthatvui.com
+        </p>
+
+        <p>
+            © 2026 Bản quyền thuộc về Tiếng Anh Thật Vui.
+            Vận hành miễn phí trên Cloudflare Pages & Supabase.
+        </p>
+
     </footer>
 
-    <!-- SCRIPT KHỞI TẠO SUPABASE VÀ XỬ LÝ ĐĂNG NHẬP -->
-    <script>
-        // 1. Khởi tạo Biến Kết Nối Supabase Trực Tiếp (Khắc phục hoàn toàn lỗi undefined)
-        const SUPABASE_URL = "https://cafevcfsoabxvtralomc.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_RJq7Z9XLRg-HLaKZXPPdeQ_GWF0UtUF";
-        
-        // Tạo instance client duy nhất dùng chung toàn bộ script
-        const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Hiển thị icon Lucide
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        /* =====================================================
+           1. SUPABASE CONFIG
+        ====================================================== */
+
+        const SUPABASE_URL =
+            "https://cafevcfsoabxvtralomc.supabase.co";
+
+        const SUPABASE_ANON_KEY =
+            "sb_publishable_RJq7Z9XLRg-HLaKZXPPdeQ_GWF0UtUF";
+
+
+        const dbClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+        /* =====================================================
+           2. DOM ELEMENTS
+        ====================================================== */
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const phoneInput =
+            document.getElementById("phone");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const btnLogin =
+            document.getElementById("btnLogin");
+
+        const loginError =
+            document.getElementById("loginError");
+
+
+        /* =====================================================
+           3. LUCIDE
+        ====================================================== */
+
         lucide.createIcons();
 
-        // 2. Tự động kiểm tra nếu người dùng đã đăng nhập từ trước thì chuyển thẳng vào trang tương ứng
-        async function checkAutoLogin() {
-            try {
-                const { data: { session } } = await dbClient.auth.getSession();
-                if (session) {
-                    await redirectByRole(session.user.id);
-                }
-            } catch (err) {
-                console.error("Lỗi kiểm tra phiên làm việc:", err);
+
+        /* =====================================================
+           4. HIỂN THỊ LỖI
+        ====================================================== */
+
+        function showLoginError(message) {
+
+            loginError.textContent = message;
+
+            loginError.classList.remove("hidden");
+        }
+
+
+        function hideLoginError() {
+
+            loginError.textContent = "";
+
+            loginError.classList.add("hidden");
+        }
+
+
+        /* =====================================================
+           5. TRẠNG THÁI BUTTON
+        ====================================================== */
+
+        function setLoginLoading(isLoading) {
+
+            btnLogin.disabled = isLoading;
+
+            if (isLoading) {
+
+                btnLogin.textContent =
+                    "Đang xác thực...";
+
+            } else {
+
+                btnLogin.textContent =
+                    "Đăng Nhập Vào Học";
             }
         }
 
-        // 3. Hàm xử lý khi người dùng bấm nút Đăng Nhập
-        async function handleLogin(e) {
-            e.preventDefault();
-            const inputVal = document.getElementById('phone').value.trim();
-            const password = document.getElementById('password').value;
-            const btnLogin = document.getElementById('btnLogin');
-            const errorDiv = document.getElementById('loginError');
 
-            // Quy đổi linh hoạt: Nếu phụ huynh nhập SĐT (vd 0912345678) -> Tự thêm đuôi thành email ảo
-            let formattedEmail = inputVal;
-            if (!inputVal.includes('@')) {
-                formattedEmail = `${inputVal}@tienganhthatvui.com`;
-            }
+        /* =====================================================
+           6. CHUYỂN HƯỚNG THEO ROLE
+        ====================================================== */
 
-            btnLogin.innerText = 'Đang xác thực...';
-            btnLogin.disabled = true;
-            errorDiv.classList.add('hidden');
+        async function redirectByRole(userId) {
 
             try {
-                // Đăng nhập qua Supabase Auth
-                const { data: authData, error: authError } = await dbClient.auth.signInWithPassword({
+
+                console.log(
+                    "Đang kiểm tra profile của user:",
+                    userId
+                );
+
+
+                const {
+                    data: profile,
+                    error
+                } = await dbClient
+                    .from("profiles")
+                    .select(`
+                        id,
+                        full_name,
+                        role,
+                        is_active,
+                        is_deleted
+                    `)
+                    .eq("id", userId)
+                    .maybeSingle();
+
+
+                /* ---------------------------------------------
+                   DATABASE ERROR
+                --------------------------------------------- */
+
+                if (error) {
+
+                    console.error(
+                        "PROFILE QUERY ERROR:",
+                        error
+                    );
+
+                    throw new Error(
+                        "Không thể kiểm tra thông tin tài khoản. Vui lòng thử lại."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   KHÔNG CÓ PROFILE
+                --------------------------------------------- */
+
+                if (!profile) {
+
+                    console.error(
+                        "Không tìm thấy profile cho user:",
+                        userId
+                    );
+
+                    await dbClient.auth.signOut();
+
+                    throw new Error(
+                        "Tài khoản chưa được kích hoạt trong hệ thống. Vui lòng liên hệ trung tâm."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   TÀI KHOẢN BỊ XÓA MỀM
+                --------------------------------------------- */
+
+                if (profile.is_deleted === true) {
+
+                    await dbClient.auth.signOut();
+
+                    throw new Error(
+                        "Tài khoản đã bị ngưng sử dụng. Vui lòng liên hệ trung tâm."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   TÀI KHOẢN BỊ KHÓA
+                --------------------------------------------- */
+
+                if (profile.is_active === false) {
+
+                    await dbClient.auth.signOut();
+
+                    throw new Error(
+                        "Tài khoản của bạn đang bị khóa hoặc tạm ngưng hoạt động."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   KIỂM TRA ROLE
+                --------------------------------------------- */
+
+                const allowedRoles = [
+                    "admin",
+                    "teacher",
+                    "student"
+                ];
+
+
+                if (!allowedRoles.includes(profile.role)) {
+
+                    console.error(
+                        "ROLE KHÔNG HỢP LỆ:",
+                        profile.role
+                    );
+
+                    await dbClient.auth.signOut();
+
+                    throw new Error(
+                        "Tài khoản chưa được phân quyền đúng. Vui lòng liên hệ quản trị viên."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   CHUYỂN TRANG
+                --------------------------------------------- */
+
+                console.log(
+                    "Đăng nhập thành công:",
+                    profile.full_name,
+                    "| Role:",
+                    profile.role
+                );
+
+
+                if (profile.role === "admin") {
+
+                    window.location.replace(
+                        "admin.html"
+                    );
+
+                    return;
+                }
+
+
+                if (profile.role === "teacher") {
+
+                    window.location.replace(
+                        "teacher.html"
+                    );
+
+                    return;
+                }
+
+
+                if (profile.role === "student") {
+
+                    window.location.replace(
+                        "hocsinh.html"
+                    );
+
+                    return;
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "REDIRECT ERROR:",
+                    error
+                );
+
+                throw error;
+            }
+        }
+
+
+        /* =====================================================
+           7. LOGIN
+        ====================================================== */
+
+        async function handleLogin(event) {
+
+            event.preventDefault();
+
+            hideLoginError();
+
+
+            const inputVal =
+                phoneInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            if (!inputVal || !password) {
+
+                showLoginError(
+                    "Vui lòng nhập đầy đủ Email/Số điện thoại và mật khẩu."
+                );
+
+                return;
+            }
+
+
+            /*
+             * Nếu người dùng nhập số điện thoại
+             * thì chuyển thành email ảo.
+             *
+             * Ví dụ:
+             *
+             * 0912345678
+             * ↓
+             * 0912345678@tienganhthatvui.com
+             */
+
+            let formattedEmail =
+                inputVal;
+
+
+            if (!inputVal.includes("@")) {
+
+                formattedEmail =
+                    `${inputVal}@tienganhthatvui.com`;
+            }
+
+
+            setLoginLoading(true);
+
+
+            try {
+
+                console.log(
+                    "Đang đăng nhập:",
+                    formattedEmail
+                );
+
+
+                /* ---------------------------------------------
+                   SUPABASE AUTH
+                --------------------------------------------- */
+
+                const {
+                    data: authData,
+                    error: authError
+                } = await dbClient.auth.signInWithPassword({
+
                     email: formattedEmail,
+
                     password: password
                 });
 
+
+                /* ---------------------------------------------
+                   AUTH ERROR
+                --------------------------------------------- */
+
                 if (authError) {
-    console.error("SUPABASE AUTH ERROR:", authError);
-    throw new Error(authError.message);
-}
 
-                // Phân luồng theo vai trò người dùng (role)
-                await redirectByRole(authData.user.id);
+                    console.error(
+                        "SUPABASE AUTH ERROR:",
+                        authError
+                    );
 
-            } catch (err) {
-                errorDiv.innerText = err.message || "Đã xảy ra lỗi khi đăng nhập!";
-                errorDiv.classList.remove('hidden');
-                btnLogin.innerText = 'Đăng Nhập Vào Học';
-                btnLogin.disabled = false;
+
+                    /*
+                     * Không hiển thị lỗi kỹ thuật
+                     * trực tiếp cho người dùng.
+                     */
+
+                    if (
+                        authError.message
+                            ?.toLowerCase()
+                            .includes("invalid login credentials")
+                    ) {
+
+                        throw new Error(
+                            "Email/Số điện thoại hoặc mật khẩu không chính xác."
+                        );
+                    }
+
+
+                    throw new Error(
+                        "Không thể đăng nhập lúc này. Vui lòng thử lại."
+                    );
+                }
+
+
+                /* ---------------------------------------------
+                   KIỂM TRA USER
+                --------------------------------------------- */
+
+                if (
+                    !authData ||
+                    !authData.user
+                ) {
+
+                    throw new Error(
+                        "Không nhận được thông tin tài khoản."
+                    );
+                }
+
+
+                console.log(
+                    "AUTH USER:",
+                    authData.user.id
+                );
+
+
+                /* ---------------------------------------------
+                   KIỂM TRA PROFILE + ROLE
+                --------------------------------------------- */
+
+                await redirectByRole(
+                    authData.user.id
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "LOGIN ERROR:",
+                    error
+                );
+
+
+                showLoginError(
+                    error.message ||
+                    "Đã xảy ra lỗi khi đăng nhập."
+                );
+
+
+                /*
+                 * Nếu login thất bại,
+                 * xóa session hiện tại để tránh
+                 * session lỗi còn sót lại.
+                 */
+
+                try {
+
+                    await dbClient.auth.signOut();
+
+                } catch (signOutError) {
+
+                    console.error(
+                        "SIGN OUT ERROR:",
+                        signOutError
+                    );
+                }
+
+
+                setLoginLoading(false);
             }
         }
 
-        // 4. Hàm kiểm tra quyền (role) trong bảng profiles và chuyển hướng trang
-        async function redirectByRole(userId) {
-            const { data: profile, error } = await dbClient
-                .from('profiles')
-                .select('role, is_active, is_deleted')
-                .eq('id', userId)
-                .single();
 
-            if (error || !profile || profile.is_deleted) {
-                alert("Tài khoản không tồn tại hoặc đã bị ẩn khỏi hệ thống!");
-                await dbClient.auth.signOut();
-                location.reload();
-                return;
-            }
+        /* =====================================================
+           8. GẮN FORM SUBMIT
+        ====================================================== */
 
-            if (profile.is_active === false) {
-                alert("Tài khoản của bạn đã bị khóa hoặc tạm ngưng hoạt động!");
-                await dbClient.auth.signOut();
-                location.reload();
-                return;
-            }
+        loginForm.addEventListener(
+            "submit",
+            handleLogin
+        );
 
-            // Chuyển hướng đúng giao diện
-            if (profile.role === 'admin') {
-                window.location.href = 'admin.html';
-            } else if (profile.role === 'teacher') {
-                window.location.href = 'teacher.html';
-            } else if (profile.role === 'student') {
-                window.location.href = 'hocsinh.html';
+
+        /* =====================================================
+           9. KIỂM TRA SESSION KHI MỞ INDEX
+        ====================================================== */
+
+        async function checkAutoLogin() {
+
+            try {
+
+                console.log(
+                    "Đang kiểm tra session..."
+                );
+
+
+                const {
+                    data: sessionData,
+                    error
+                } = await dbClient.auth.getSession();
+
+
+                if (error) {
+
+                    console.error(
+                        "GET SESSION ERROR:",
+                        error
+                    );
+
+                    return;
+                }
+
+
+                const session =
+                    sessionData?.session;
+
+
+                /*
+                 * Không có session
+                 * → ở lại trang login.
+                 */
+
+                if (!session) {
+
+                    console.log(
+                        "Chưa đăng nhập."
+                    );
+
+                    return;
+                }
+
+
+                console.log(
+                    "Đã có session:",
+                    session.user.id
+                );
+
+
+                /*
+                 * Có session
+                 * → kiểm tra profile.
+                 */
+
+                await redirectByRole(
+                    session.user.id
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "AUTO LOGIN ERROR:",
+                    error
+                );
+
+
+                /*
+                 * Nếu session tồn tại nhưng
+                 * profile không hợp lệ,
+                 * đưa user về trạng thái đăng xuất.
+                 */
+
+                try {
+
+                    await dbClient.auth.signOut();
+
+                } catch (signOutError) {
+
+                    console.error(
+                        "AUTO LOGOUT ERROR:",
+                        signOutError
+                    );
+                }
             }
         }
 
-        // Tự động chạy kiểm tra phiên làm việc khi load trang
+
+        /* =====================================================
+           10. KHỞI ĐỘNG
+        ====================================================== */
+
         checkAutoLogin();
+
     </script>
+
 </body>
 </html>
