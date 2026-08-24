@@ -6,48 +6,47 @@
 
     <title>Quản Trị Hệ Thống - tienganhthatvui.com</title>
 
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
 
-<!-- ========================================================= -->
-<!-- HEADER -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     HEADER
+========================================================= -->
 <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
 
-        <div class="flex items-center space-x-3">
-
+        <div class="flex items-center gap-3">
             <div class="bg-blue-600 p-2 rounded-xl">
-                <i data-lucide="shield-check" class="w-6 h-6"></i>
+                <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
             </div>
 
             <div>
                 <h1 class="font-bold text-lg leading-tight">
                     Admin Control Panel
                 </h1>
-
                 <p class="text-xs text-slate-400">
                     tienganhthatvui.com
                 </p>
             </div>
-
         </div>
 
         <div class="flex items-center gap-2">
 
-            <button
-                onclick="promptChangeAdminPassword()"
-                class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
+            <div
+                id="adminName"
+                class="hidden sm:block text-xs text-slate-300 mr-2"
             >
-                <i data-lucide="key" class="w-4 h-4"></i>
-                Đổi Mật Khẩu Admin
-            </button>
+                Admin
+            </div>
 
             <button
                 onclick="handleLogout()"
@@ -58,55 +57,50 @@
             </button>
 
         </div>
-
     </div>
-
 </header>
 
 
-<!-- ========================================================= -->
-<!-- LOADING -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     LOADING OVERLAY
+========================================================= -->
 <div
     id="loadingOverlay"
-    class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center"
+    class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center"
 >
+    <div class="bg-white rounded-2xl shadow-xl p-6 text-center w-[280px]">
 
-    <div class="bg-white rounded-2xl shadow-xl px-6 py-5 flex items-center gap-3">
+        <div class="flex justify-center mb-4">
+            <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+        </div>
 
-        <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-
-        <span id="loadingText" class="font-semibold text-sm">
-            Đang xử lý...
-        </span>
+        <p
+            id="loadingText"
+            class="text-sm font-semibold text-slate-700"
+        >
+            Đang kiểm tra quyền Admin...
+        </p>
 
     </div>
-
 </div>
 
 
-<!-- ========================================================= -->
-<!-- MAIN -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     MAIN
+========================================================= -->
 <main class="max-w-7xl mx-auto px-4 mt-6 space-y-8">
 
 
-<!-- ========================================================= -->
-<!-- 1. YÊU CẦU HỌC PHÍ -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     1. YÊU CẦU HỌC PHÍ
+========================================================= -->
 <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
 
     <div class="flex items-center justify-between mb-4">
 
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-
             <i data-lucide="credit-card" class="w-5 h-5 text-amber-500"></i>
-
-            Yêu Cầu Duyệt Học Phí
-
+            Yêu Cầu Duyệt Học Phí Chờ Xử Lý
         </h2>
 
         <span
@@ -118,71 +112,79 @@
 
     </div>
 
-
     <div class="overflow-x-auto">
 
         <table class="w-full text-left border-collapse">
 
             <thead>
+            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
 
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                <th class="py-3 px-4">
+                    Học Sinh
+                </th>
 
-                    <th class="py-3 px-4">Học Sinh</th>
+                <th class="py-3 px-4">
+                    Lớp Học
+                </th>
 
-                    <th class="py-3 px-4">Lớp</th>
+                <th class="py-3 px-4">
+                    Gói Đăng Ký
+                </th>
 
-                    <th class="py-3 px-4">Gói</th>
+                <th class="py-3 px-4">
+                    Mã Giao Dịch / Nội Dung
+                </th>
 
-                    <th class="py-3 px-4">Mã Giao Dịch</th>
+                <th class="py-3 px-4">
+                    Ngày Gửi
+                </th>
 
-                    <th class="py-3 px-4">Ngày Gửi</th>
+                <th class="py-3 px-4 text-right">
+                    Thao Tác
+                </th>
 
-                    <th class="py-3 px-4 text-right">Thao Tác</th>
-
-                </tr>
-
+            </tr>
             </thead>
 
             <tbody
                 id="tuitionTable"
                 class="divide-y divide-slate-100 text-sm"
-            ></tbody>
+            >
+            </tbody>
 
         </table>
 
     </div>
-
 </section>
 
 
-<!-- ========================================================= -->
-<!-- 2. LỚP + TẠO USER -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     2. QUẢN LÝ LỚP + TẠO USER
+========================================================= -->
 <div class="grid md:grid-cols-3 gap-6">
 
 
-<!-- ================= LỚP ================= -->
-
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+<!-- =========================================================
+     TẠO LỚP / BÀN GIAO
+========================================================= -->
+<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
 
     <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
-        <i data-lucide="school" class="w-5 h-5 text-blue-600"></i>
-
-        Quản Lý Lớp
-
+        <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
+        Tạo Lớp & Bàn Giao
     </h2>
 
 
     <!-- TẠO LỚP -->
-
-    <form onsubmit="handleCreateClass(event)" class="space-y-3">
+    <form
+        onsubmit="handleCreateClass(event)"
+        class="space-y-3"
+    >
 
         <div>
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
-                Tên Lớp
+                Tên Lớp Học Mới
             </label>
 
             <input
@@ -199,12 +201,12 @@
         <div>
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
-                Giáo Viên Phụ Trách
+                Giáo Viên Phụ Trách Ban Đầu
             </label>
 
             <select
                 id="teacherSelect"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
             </select>
 
@@ -213,23 +215,23 @@
 
         <button
             type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm"
+            id="btnCreateClass"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition"
         >
-            Tạo Lớp
+            Tạo Lớp Học Mới
         </button>
 
     </form>
 
 
-    <hr class="border-slate-100">
+    <hr class="my-4 border-slate-100">
 
 
     <!-- BÀN GIAO -->
-
     <div>
 
         <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">
-            Bàn Giao Lớp
+            Bàn Giao Lớp Cho GV Mới
         </h3>
 
         <div class="space-y-2">
@@ -237,18 +239,21 @@
             <select
                 id="classToReassign"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
+            >
+            </select>
 
             <select
                 id="newTeacherForClass"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
+            >
+            </select>
 
             <button
                 onclick="reassignTeacher()"
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs"
+                id="btnReassign"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition"
             >
-                Cập Nhật Giáo Viên
+                Cập Nhật Bàn Giao Lớp
             </button>
 
         </div>
@@ -256,48 +261,44 @@
     </div>
 
 
-    <hr class="border-slate-100">
+    <hr class="my-4 border-slate-100">
 
 
-    <!-- DANH SÁCH LỚP -->
-
+    <!-- QUẢN LÝ TRẠNG THÁI LỚP -->
     <div>
 
         <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">
-            Trạng Thái Lớp
+            Bật / Tắt Lớp
         </h3>
 
-        <div
-            id="classStatusList"
-            class="space-y-2"
-        ></div>
+        <select
+            id="classStatusSelect"
+            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm mb-2"
+        >
+        </select>
+
+        <button
+            onclick="toggleSelectedClass()"
+            id="btnToggleClass"
+            class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 rounded-xl text-xs transition"
+        >
+            Đổi Trạng Thái Lớp
+        </button>
 
     </div>
 
 </section>
 
 
-<!-- ================= TẠO USER ================= -->
-
+<!-- =========================================================
+     TẠO TÀI KHOẢN
+========================================================= -->
 <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 md:col-span-2 space-y-4">
 
     <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
         <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
-
-        Tạo Tài Khoản
-
+        Tạo Tài Khoản Người Dùng Mới
     </h2>
-
-
-    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-800">
-
-        <b>Lưu ý:</b>
-        Hệ thống sẽ tự động tạo mật khẩu ngẫu nhiên gồm
-        <b>6 chữ số</b>.
-        Sau khi tạo thành công, mật khẩu sẽ hiện ra để Admin gửi cho người dùng.
-
-    </div>
 
 
     <form
@@ -305,6 +306,7 @@
         class="grid sm:grid-cols-2 gap-3"
     >
 
+        <!-- HỌ TÊN -->
         <div>
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
@@ -316,29 +318,31 @@
                 id="fullName"
                 required
                 placeholder="Nguyễn Văn A"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
 
         </div>
 
 
+        <!-- PHONE -->
         <div>
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
-                Số Điện Thoại
+                Số Điện Thoại / Email Đăng Nhập
             </label>
 
             <input
-                type="tel"
+                type="text"
                 id="userPhone"
                 required
                 placeholder="0912345678"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
 
         </div>
 
 
+        <!-- ROLE -->
         <div>
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
@@ -348,7 +352,7 @@
             <select
                 id="userRole"
                 onchange="toggleClassSelect()"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
 
                 <option value="student">
@@ -364,6 +368,7 @@
         </div>
 
 
+        <!-- CLASS -->
         <div id="classSelectBox">
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
@@ -372,13 +377,15 @@
 
             <select
                 id="userClass"
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
-            ></select>
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            </select>
 
         </div>
 
 
-        <div>
+        <!-- EXPIRY -->
+        <div id="expiredBox">
 
             <label class="block text-xs font-medium text-slate-600 mb-1">
                 Hạn Học Phí Ban Đầu
@@ -387,19 +394,18 @@
             <input
                 type="date"
                 id="expiredAt"
-                required
-                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
 
         </div>
 
 
-        <div class="sm:col-span-2">
+        <div class="sm:col-span-2 pt-1">
 
             <button
                 type="submit"
                 id="btnCreateUser"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm transition"
             >
                 Tạo Tài Khoản
             </button>
@@ -408,63 +414,73 @@
 
     </form>
 
+
+    <div
+        class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700"
+    >
+        <strong>Lưu ý:</strong>
+        Mật khẩu được Worker tự động tạo và trả về sau khi tạo tài khoản.
+        Hãy lưu lại mật khẩu để giao cho người dùng.
+    </div>
+
 </section>
 
 </div>
 
 
-<!-- ========================================================= -->
-<!-- 3. GIÁO VIÊN -->
-<!-- ========================================================= -->
-
+<!-- =========================================================
+     3. DANH SÁCH LỚP
+========================================================= -->
 <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
 
     <div class="flex items-center justify-between mb-4">
 
         <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
-            <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-600"></i>
-
-            Giáo Viên
-
+            <i data-lucide="school" class="w-5 h-5 text-blue-600"></i>
+            Danh Sách Lớp Học
         </h2>
 
         <span
-            id="teacherCount"
-            class="text-xs text-slate-500"
-        ></span>
+            id="classCount"
+            class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full"
+        >
+            0 lớp
+        </span>
 
     </div>
 
 
     <div class="overflow-x-auto">
 
-        <table class="w-full text-left">
+        <table class="w-full text-left border-collapse">
 
             <thead>
+            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
 
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                <th class="py-3 px-4">
+                    Tên Lớp
+                </th>
 
-                    <th class="py-3 px-4">
-                        Họ Tên
-                    </th>
+                <th class="py-3 px-4">
+                    Giáo Viên
+                </th>
 
-                    <th class="py-3 px-4">
-                        Trạng Thái
-                    </th>
+                <th class="py-3 px-4">
+                    Trạng Thái
+                </th>
 
-                    <th class="py-3 px-4 text-right">
-                        Thao Tác
-                    </th>
+                <th class="py-3 px-4 text-right">
+                    Thao Tác
+                </th>
 
-                </tr>
-
+            </tr>
             </thead>
 
             <tbody
-                id="teacherTable"
+                id="classTable"
                 class="divide-y divide-slate-100 text-sm"
-            ></tbody>
+            >
+            </tbody>
 
         </table>
 
@@ -473,66 +489,113 @@
 </section>
 
 
-<!-- ========================================================= -->
-<!-- 4. HỌC SINH -->
-<!-- ========================================================= -->
+<!-- =========================================================
+     4. GIÁO VIÊN
+========================================================= -->
+<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
 
-<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+        <i data-lucide="graduation-cap" class="w-5 h-5 text-purple-600"></i>
+        Danh Sách Giáo Viên
+    </h2>
 
-    <div class="flex items-center justify-between mb-4">
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-left border-collapse">
+
+            <thead>
+            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+
+                <th class="py-3 px-4">
+                    Họ Tên
+                </th>
+
+                <th class="py-3 px-4">
+                    Trạng Thái
+                </th>
+
+                <th class="py-3 px-4">
+                    Ngày Tạo
+                </th>
+
+                <th class="py-3 px-4 text-right">
+                    Thao Tác
+                </th>
+
+            </tr>
+            </thead>
+
+            <tbody
+                id="teacherTable"
+                class="divide-y divide-slate-100 text-sm"
+            >
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     5. HỌC SINH
+========================================================= -->
+<section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+
+    <div class="flex items-center justify-between">
 
         <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-
             <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i>
-
-            Học Sinh
-
+            Danh Sách Học Sinh
         </h2>
 
         <span
             id="studentCount"
-            class="text-xs text-slate-500"
-        ></span>
+            class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full"
+        >
+            0 học sinh
+        </span>
 
     </div>
 
 
     <div class="overflow-x-auto">
 
-        <table class="w-full text-left">
+        <table class="w-full text-left border-collapse">
 
             <thead>
+            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
 
-                <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                <th class="py-3 px-4">
+                    Họ Tên
+                </th>
 
-                    <th class="py-3 px-4">
-                        Họ Tên
-                    </th>
+                <th class="py-3 px-4">
+                    Lớp Học
+                </th>
 
-                    <th class="py-3 px-4">
-                        Lớp
-                    </th>
+                <th class="py-3 px-4">
+                    Hạn Học Phí
+                </th>
 
-                    <th class="py-3 px-4">
-                        Hạn Học Phí
-                    </th>
+                <th class="py-3 px-4">
+                    Trạng Thái
+                </th>
 
-                    <th class="py-3 px-4">
-                        Trạng Thái
-                    </th>
+                <th class="py-3 px-4 text-right">
+                    Thao Tác
+                </th>
 
-                    <th class="py-3 px-4 text-right">
-                        Thao Tác
-                    </th>
-
-                </tr>
-
+            </tr>
             </thead>
 
             <tbody
                 id="studentTable"
                 class="divide-y divide-slate-100 text-sm"
-            ></tbody>
+            >
+            </tbody>
 
         </table>
 
@@ -543,39 +606,243 @@
 </main>
 
 
-<!-- ========================================================= -->
-<!-- JAVASCRIPT -->
-<!-- ========================================================= -->
+<!-- =========================================================
+     MODAL HIỂN THỊ PASSWORD
+========================================================= -->
+<div
+    id="passwordModal"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] items-center justify-center px-4"
+>
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+
+        <div class="flex items-center justify-between mb-4">
+
+            <h2 class="text-lg font-bold text-slate-900">
+                Thông Tin Đăng Nhập
+            </h2>
+
+            <button
+                onclick="closePasswordModal()"
+                class="text-slate-400 hover:text-slate-700"
+            >
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+        </div>
+
+
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-3">
+
+            <div>
+                <p class="text-xs text-green-700 font-semibold">
+                    Họ tên
+                </p>
+
+                <p
+                    id="resultName"
+                    class="font-bold text-slate-800"
+                ></p>
+            </div>
+
+
+            <div>
+                <p class="text-xs text-green-700 font-semibold">
+                    Tài khoản đăng nhập
+                </p>
+
+                <p
+                    id="resultEmail"
+                    class="font-mono text-sm text-slate-800 break-all"
+                ></p>
+            </div>
+
+
+            <div>
+                <p class="text-xs text-green-700 font-semibold">
+                    Mật khẩu
+                </p>
+
+                <div class="flex gap-2">
+
+                    <input
+                        id="resultPassword"
+                        readonly
+                        class="flex-1 bg-white border border-green-200 rounded-lg px-3 py-2 font-mono font-bold text-lg"
+                    >
+
+                    <button
+                        onclick="copyGeneratedPassword()"
+                        class="bg-green-600 hover:bg-green-700 text-white px-3 rounded-lg"
+                        title="Copy"
+                    >
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            onclick="closePasswordModal()"
+            class="w-full mt-4 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl"
+        >
+            Đã Lưu Thông Tin
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SCRIPT
+========================================================= -->
 
 <script src="supabase-config.js"></script>
 
 <script>
 
+"use strict";
+
+/*
+============================================================
+CẤU HÌNH
+============================================================
+*/
+
+/*
+ * QUAN TRỌNG:
+ *
+ * Sửa WORKER_URL thành URL Cloudflare Worker của bạn.
+ *
+ * Ví dụ:
+ *
+ * const WORKER_URL = "https://admin-api.tienganhthatvui.com";
+ *
+ * hoặc:
+ *
+ * const WORKER_URL = "https://ten-worker.ten-user.workers.dev";
+ *
+ * Nếu supabase-config.js đã có biến WORKER_URL thì đoạn
+ * bên dưới sẽ tự dùng biến đó.
+ */
+
 const WORKER_URL =
-    "https://tienganhthatvui-api.khoavip2023.workers.dev";
+    window.WORKER_URL ||
+    "https://YOUR-WORKER-URL.workers.dev";
 
 
-// ==========================================================
-// UI HELPERS
-// ==========================================================
+/*
+============================================================
+SUPABASE CLIENT
+============================================================
+*/
+
+let supabaseClient = null;
+
+
+/*
+ * Tìm cấu hình Supabase từ supabase-config.js
+ *
+ * Hỗ trợ nhiều kiểu tên biến phổ biến.
+ */
+
+function getSupabaseConfig() {
+
+    const url =
+        window.SUPABASE_URL ||
+        window.supabaseUrl ||
+        window.SUPABASE_CONFIG?.url;
+
+    const anonKey =
+        window.SUPABASE_ANON_KEY ||
+        window.SUPABASE_ANON ||
+        window.supabaseAnonKey ||
+        window.SUPABASE_CONFIG?.anonKey;
+
+    return {
+        url,
+        anonKey
+    };
+}
+
+
+/*
+============================================================
+KHỞI TẠO SUPABASE
+============================================================
+*/
+
+function initializeSupabase() {
+
+    const config = getSupabaseConfig();
+
+    if (!config.url || !config.anonKey) {
+
+        throw new Error(
+            "Không tìm thấy SUPABASE_URL hoặc SUPABASE_ANON_KEY trong supabase-config.js."
+        );
+
+    }
+
+    if (
+        !window.supabase ||
+        typeof window.supabase.createClient !== "function"
+    ) {
+
+        throw new Error(
+            "Supabase SDK chưa được tải."
+        );
+
+    }
+
+    supabaseClient = window.supabase.createClient(
+        config.url,
+        config.anonKey
+    );
+
+    return supabaseClient;
+}
+
+
+/*
+============================================================
+UTILITY
+============================================================
+*/
 
 function showLoading(text = "Đang xử lý...") {
 
-    document.getElementById("loadingText").innerText = text;
+    const overlay =
+        document.getElementById("loadingOverlay");
 
-    const overlay = document.getElementById("loadingOverlay");
+    const loadingText =
+        document.getElementById("loadingText");
 
-    overlay.classList.remove("hidden");
-    overlay.classList.add("flex");
+    if (loadingText) {
+        loadingText.innerText = text;
+    }
+
+    if (overlay) {
+        overlay.classList.remove("hidden");
+        overlay.classList.add("flex");
+    }
 }
 
 
 function hideLoading() {
 
-    const overlay = document.getElementById("loadingOverlay");
+    const overlay =
+        document.getElementById("loadingOverlay");
 
-    overlay.classList.add("hidden");
-    overlay.classList.remove("flex");
+    if (overlay) {
+        overlay.classList.add("hidden");
+        overlay.classList.remove("flex");
+    }
 }
 
 
@@ -596,81 +863,116 @@ function escapeHtml(value) {
 
 function formatDate(value) {
 
-    if (!value) return "—";
-
-    const d = new Date(value);
-
-    if (Number.isNaN(d.getTime())) {
+    if (!value) {
         return "—";
     }
 
-    return d.toLocaleDateString("vi-VN");
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
+    }
+
+    return date.toLocaleDateString(
+        "vi-VN",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        }
+    );
 }
 
 
 function formatDateTime(value) {
 
-    if (!value) return "—";
-
-    const d = new Date(value);
-
-    if (Number.isNaN(d.getTime())) {
+    if (!value) {
         return "—";
     }
 
-    return d.toLocaleString("vi-VN");
-}
+    const date = new Date(value);
 
-
-// ==========================================================
-// SUPABASE SESSION
-// ==========================================================
-
-async function getSession() {
-
-    const {
-        data: { session },
-        error
-    } = await supabase.auth.getSession();
-
-    if (error) {
-        throw new Error(error.message);
+    if (Number.isNaN(date.getTime())) {
+        return "—";
     }
 
-    return session;
+    return date.toLocaleString(
+        "vi-VN",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
 }
 
 
-// ==========================================================
-// GỌI CLOUDFLARE WORKER
-// ==========================================================
+/*
+============================================================
+SESSION
+============================================================
+*/
 
-async function workerFetch(path, options = {}) {
+async function getAccessToken() {
 
-    const session = await getSession();
+    if (!supabaseClient) {
+        initializeSupabase();
+    }
 
-    if (!session) {
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getSession();
 
-        window.location.href = "index.html";
+    if (error) {
+        throw new Error(
+            "Không thể đọc phiên đăng nhập: " +
+            error.message
+        );
+    }
 
-        throw new Error("Phiên đăng nhập đã hết hạn.");
+    if (!data || !data.session) {
+        return null;
+    }
+
+    return data.session.access_token;
+}
+
+
+/*
+============================================================
+GỌI WORKER
+============================================================
+*/
+
+async function workerFetch(
+    path,
+    options = {}
+) {
+
+    const token = await getAccessToken();
+
+    if (!token) {
+
+        window.location.replace("index.html");
+
+        throw new Error(
+            "Phiên đăng nhập không tồn tại."
+        );
     }
 
 
     const headers = {
-
         "Content-Type": "application/json",
-
-        "Authorization":
-            `Bearer ${session.access_token}`,
-
+        "Authorization": "Bearer " + token,
         ...(options.headers || {})
-
     };
 
 
     const response = await fetch(
-        `${WORKER_URL}${path}`,
+        WORKER_URL + path,
         {
             ...options,
             headers
@@ -678,33 +980,41 @@ async function workerFetch(path, options = {}) {
     );
 
 
+    let data = null;
+
     const text = await response.text();
 
-    let data;
+    if (text) {
 
-    try {
-
-        data = text
-            ? JSON.parse(text)
-            : null;
-
-    } catch {
-
-        data = text;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = text;
+        }
 
     }
 
 
-    if (response.status === 401) {
+    /*
+     * Token hết hạn / không còn quyền Admin.
+     */
+    if (response.status === 401 || response.status === 403) {
 
-        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        alert(
+            data?.error ||
+            "Phiên đăng nhập đã hết hạn hoặc bạn không còn quyền Admin."
+        );
 
-        await supabase.auth.signOut();
+        try {
+            await supabaseClient.auth.signOut();
+        } catch {}
 
-        window.location.href = "index.html";
+        window.location.replace("index.html");
 
-        throw new Error("Unauthorized");
-
+        throw new Error(
+            data?.error ||
+            "Không có quyền truy cập."
+        );
     }
 
 
@@ -713,14 +1023,13 @@ async function workerFetch(path, options = {}) {
         const message =
             data?.error ||
             data?.message ||
-            "API Worker xảy ra lỗi.";
+            (
+                typeof data === "string"
+                    ? data
+                    : "Worker API trả về lỗi " + response.status
+            );
 
-        throw new Error(
-            typeof message === "string"
-                ? message
-                : JSON.stringify(message)
-        );
-
+        throw new Error(message);
     }
 
 
@@ -728,133 +1037,193 @@ async function workerFetch(path, options = {}) {
 }
 
 
-// ==========================================================
-// KIỂM TRA ADMIN
-// ==========================================================
+/*
+============================================================
+KIỂM TRA ADMIN
+============================================================
+*/
 
 async function checkAdminAuth() {
 
     try {
 
-        const session = await getSession();
+        showLoading(
+            "Đang kiểm tra phiên đăng nhập..."
+        );
 
-        if (!session) {
+        if (!supabaseClient) {
+            initializeSupabase();
+        }
 
-            window.location.href = "index.html";
+
+        const token = await getAccessToken();
+
+        if (!token) {
+
+            window.location.replace("index.html");
 
             return false;
         }
 
 
-        const data = await workerFetch(
-            "/api/admin/dashboard"
+        showLoading(
+            "Đang xác nhận quyền Admin..."
         );
 
 
-        if (!data?.success) {
+        /*
+         * Gọi dashboard.
+         *
+         * Worker sẽ tự kiểm tra:
+         *
+         * - JWT
+         * - user
+         * - profile
+         * - role = admin
+         * - is_active
+         * - is_deleted
+         */
+
+        const data =
+            await workerFetch(
+                "/api/admin/dashboard"
+            );
+
+
+        if (!data || !data.success) {
 
             throw new Error(
                 data?.error ||
-                "Không xác nhận được quyền Admin."
+                "Không thể xác nhận quyền Admin."
             );
+        }
+
+
+        if (data.admin) {
+
+            document.getElementById(
+                "adminName"
+            ).innerText =
+                data.admin.full_name
+                    ? "Admin: " + data.admin.full_name
+                    : "Admin";
 
         }
 
 
-        return true;
+        return data;
+
+    } catch (error) {
+
+        console.error(
+            "checkAdminAuth:",
+            error
+        );
+
+        /*
+         * Nếu chưa chuyển trang thì mới báo lỗi.
+         */
+        if (
+            !window.location.pathname.endsWith(
+                "index.html"
+            )
+        ) {
+
+            alert(
+                error.message ||
+                "Không thể xác nhận quyền Admin."
+            );
+
+        }
+
+        return null;
+
+    }
+
+}
+
+
+/*
+============================================================
+LOGOUT
+============================================================
+*/
+
+async function handleLogout() {
+
+    try {
+
+        showLoading(
+            "Đang đăng xuất..."
+        );
+
+        if (supabaseClient) {
+
+            await supabaseClient.auth.signOut();
+
+        }
 
     } catch (error) {
 
         console.error(error);
 
-        alert(
-            "Không thể xác thực Admin:\n\n" +
-            error.message
-        );
-
-        window.location.href = "index.html";
-
-        return false;
-    }
-}
-
-
-// ==========================================================
-// LOGOUT
-// ==========================================================
-
-async function handleLogout() {
-
-    await supabase.auth.signOut();
-
-    window.location.href = "index.html";
-}
-
-
-// ==========================================================
-// ĐỔI PASSWORD ADMIN
-// ==========================================================
-
-async function promptChangeAdminPassword() {
-
-    const newPass = prompt(
-        "Nhập mật khẩu Admin mới (tối thiểu 6 ký tự):"
-    );
-
-    if (!newPass) return;
-
-
-    if (newPass.length < 6) {
-
-        alert(
-            "Mật khẩu phải có ít nhất 6 ký tự."
-        );
-
-        return;
-    }
-
-
-    showLoading("Đang đổi mật khẩu...");
-
-
-    try {
-
-        const { error } =
-            await supabase.auth.updateUser({
-                password: newPass
-            });
-
-
-        if (error) {
-
-            throw new Error(error.message);
-
-        }
-
-
-        alert(
-            "Đã đổi mật khẩu Admin thành công!"
-        );
-
-    } catch (error) {
-
-        alert(
-            "Không thể đổi mật khẩu:\n" +
-            error.message
-        );
-
     } finally {
 
-        hideLoading();
+        window.location.replace(
+            "index.html"
+        );
 
     }
 
 }
 
 
-// ==========================================================
-// TẠO LỚP
-// ==========================================================
+/*
+============================================================
+TOGGLE ROLE
+============================================================
+*/
+
+function toggleClassSelect() {
+
+    const role =
+        document.getElementById(
+            "userRole"
+        ).value;
+
+    const box =
+        document.getElementById(
+            "classSelectBox"
+        );
+
+    const expiredBox =
+        document.getElementById(
+            "expiredBox"
+        );
+
+
+    if (role === "student") {
+
+        box.classList.remove("hidden");
+
+        expiredBox.classList.remove("hidden");
+
+    } else {
+
+        box.classList.add("hidden");
+
+        expiredBox.classList.add("hidden");
+
+    }
+
+}
+
+
+/*
+============================================================
+TẠO LỚP
+============================================================
+*/
 
 async function handleCreateClass(event) {
 
@@ -862,37 +1231,45 @@ async function handleCreateClass(event) {
 
 
     const className =
-        document
-            .getElementById("className")
-            .value
-            .trim();
-
+        document.getElementById(
+            "className"
+        ).value.trim();
 
     const teacherId =
-        document
-            .getElementById("teacherSelect")
-            .value || null;
+        document.getElementById(
+            "teacherSelect"
+        ).value || null;
 
 
     if (!className) {
 
-        alert("Vui lòng nhập tên lớp.");
+        alert(
+            "Tên lớp không được để trống."
+        );
 
         return;
+
     }
 
 
-    showLoading("Đang tạo lớp...");
+    const button =
+        document.getElementById(
+            "btnCreateClass"
+        );
 
 
     try {
+
+        button.disabled = true;
+        button.innerText =
+            "Đang tạo lớp...";
+
 
         const data =
             await workerFetch(
                 "/api/admin/classes",
                 {
                     method: "POST",
-
                     body: JSON.stringify({
                         class_name: className,
                         teacher_id: teacherId
@@ -905,76 +1282,84 @@ async function handleCreateClass(event) {
 
             throw new Error(
                 data.error ||
-                "Không thể tạo lớp."
+                "Không tạo được lớp."
             );
 
         }
 
 
-        alert("Đã tạo lớp thành công!");
+        alert(
+            "Đã tạo lớp thành công."
+        );
 
 
-        document.getElementById("className").value = "";
+        document.getElementById(
+            "className"
+        ).value = "";
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi tạo lớp:\n" +
+            "Lỗi tạo lớp: " +
             error.message
         );
 
     } finally {
 
-        hideLoading();
+        button.disabled = false;
+
+        button.innerText =
+            "Tạo Lớp Học Mới";
 
     }
 
 }
 
 
-// ==========================================================
-// ĐỔI GIÁO VIÊN
-// ==========================================================
+/*
+============================================================
+BÀN GIAO GIÁO VIÊN
+============================================================
+*/
 
 async function reassignTeacher() {
 
     const classId =
-        document
-            .getElementById("classToReassign")
-            .value;
-
+        document.getElementById(
+            "classToReassign"
+        ).value;
 
     const teacherId =
-        document
-            .getElementById("newTeacherForClass")
-            .value || null;
+        document.getElementById(
+            "newTeacherForClass"
+        ).value || null;
 
 
     if (!classId) {
 
-        alert("Vui lòng chọn lớp.");
+        alert(
+            "Vui lòng chọn lớp."
+        );
 
         return;
+
     }
-
-
-    showLoading(
-        "Đang cập nhật giáo viên..."
-    );
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/classes/${classId}/teacher`,
+                "/api/admin/classes/" +
+                encodeURIComponent(classId) +
+                "/teacher",
                 {
                     method: "PUT",
-
                     body: JSON.stringify({
                         teacher_id: teacherId
                     })
@@ -986,78 +1371,57 @@ async function reassignTeacher() {
 
             throw new Error(
                 data.error ||
-                "Không thể cập nhật giáo viên."
+                "Không thể bàn giao lớp."
             );
 
         }
 
 
         alert(
-            "Đã cập nhật giáo viên phụ trách lớp."
+            "Đã bàn giao lớp thành công."
         );
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi bàn giao:\n" +
+            "Lỗi bàn giao: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// BẬT / TẮT LỚP
-// ==========================================================
+/*
+============================================================
+ BẬT / TẮT LỚP
+============================================================
+*/
 
 async function toggleClassStatus(
     classId,
-    currentStatus,
-    className
+    currentStatus
 ) {
 
-    const newStatus = !currentStatus;
-
-
-    const action =
-        newStatus
-            ? "BẬT"
-            : "TẮT";
-
-
-    if (
-        !confirm(
-            `Bạn có chắc muốn ${action} lớp "${className}"?`
-        )
-    ) {
-
-        return;
-    }
-
-
-    showLoading(
-        `${action} lớp...`
-    );
+    const newStatus =
+        !Boolean(currentStatus);
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/classes/${classId}/status`,
+                "/api/admin/classes/" +
+                encodeURIComponent(classId) +
+                "/status",
                 {
                     method: "PUT",
-
                     body: JSON.stringify({
                         is_active: newStatus
                     })
@@ -1069,34 +1433,77 @@ async function toggleClassStatus(
 
             throw new Error(
                 data.error ||
-                "Không thể thay đổi trạng thái lớp."
+                "Không thể cập nhật trạng thái lớp."
             );
 
         }
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi:\n" +
+            "Lỗi cập nhật lớp: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// TẠO USER
-// ==========================================================
+/*
+============================================================
+ TOGGLE LỚP TỪ SELECT
+============================================================
+*/
+
+async function toggleSelectedClass() {
+
+    const select =
+        document.getElementById(
+            "classStatusSelect"
+        );
+
+    const classId =
+        select.value;
+
+    if (!classId) {
+
+        alert(
+            "Vui lòng chọn lớp."
+        );
+
+        return;
+
+    }
+
+
+    const option =
+        select.options[
+            select.selectedIndex
+        ];
+
+    const currentStatus =
+        option.dataset.active === "true";
+
+
+    await toggleClassStatus(
+        classId,
+        currentStatus
+    );
+
+}
+
+
+/*
+============================================================
+ TẠO USER
+============================================================
+*/
 
 async function handleCreateUser(event) {
 
@@ -1104,35 +1511,54 @@ async function handleCreateUser(event) {
 
 
     const fullName =
-        document
-            .getElementById("fullName")
-            .value
-            .trim();
-
+        document.getElementById(
+            "fullName"
+        ).value.trim();
 
     const phone =
-        document
-            .getElementById("userPhone")
-            .value
-            .trim();
-
+        document.getElementById(
+            "userPhone"
+        ).value.trim();
 
     const role =
-        document
-            .getElementById("userRole")
-            .value;
-
+        document.getElementById(
+            "userRole"
+        ).value;
 
     const classId =
-        document
-            .getElementById("userClass")
-            .value || null;
-
+        document.getElementById(
+            "userClass"
+        ).value || null;
 
     const expiredAt =
-        document
-            .getElementById("expiredAt")
-            .value;
+        document.getElementById(
+            "expiredAt"
+        ).value;
+
+
+    if (!fullName || !phone) {
+
+        alert(
+            "Họ tên và số điện thoại là bắt buộc."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        role === "student" &&
+        !expiredAt
+    ) {
+
+        alert(
+            "Vui lòng chọn hạn học phí."
+        );
+
+        return;
+
+    }
 
 
     const button =
@@ -1141,52 +1567,19 @@ async function handleCreateUser(event) {
         );
 
 
-    if (!fullName || !phone) {
-
-        alert(
-            "Vui lòng nhập đầy đủ họ tên và số điện thoại."
-        );
-
-        return;
-    }
-
-
-    if (
-        role === "student" &&
-        !classId
-    ) {
-
-        if (
-            !confirm(
-                "Bạn chưa xếp học sinh vào lớp. Tiếp tục tạo tài khoản?"
-            )
-        ) {
-
-            return;
-        }
-
-    }
-
-
-    button.disabled = true;
-
-    button.innerText =
-        "Đang tạo tài khoản...";
-
-
-    showLoading(
-        "Đang tạo tài khoản..."
-    );
-
-
     try {
+
+        button.disabled = true;
+
+        button.innerText =
+            "Đang khởi tạo tài khoản...";
+
 
         const data =
             await workerFetch(
                 "/api/admin/users",
                 {
                     method: "POST",
-
                     body: JSON.stringify({
 
                         full_name:
@@ -1204,7 +1597,9 @@ async function handleCreateUser(event) {
                                 : null,
 
                         expired_at:
-                            expiredAt || null
+                            role === "student"
+                                ? expiredAt
+                                : null
 
                     })
                 }
@@ -1221,45 +1616,43 @@ async function handleCreateUser(event) {
         }
 
 
-        const user =
-            data.user || {};
+        /*
+         * Worker trả về:
+         *
+         * user.id
+         * user.full_name
+         * user.role
+         * user.email
+         * user.login_phone
+         * user.password
+         */
 
-
-        alert(
-            `TẠO TÀI KHOẢN THÀNH CÔNG\n\n` +
-
-            `Họ tên: ${user.full_name || fullName}\n` +
-
-            `Số điện thoại: ${user.login_phone || phone}\n` +
-
-            `Vai trò: ${
-                role === "teacher"
-                    ? "Giáo viên"
-                    : "Học sinh"
-            }\n\n` +
-
-            `MẬT KHẨU: ${user.password || "Không nhận được"}\n\n` +
-
-            `Hãy lưu/gửi mật khẩu này cho người dùng.`
+        showPasswordModal(
+            data.user
         );
 
 
-        document
-            .getElementById("fullName")
-            .value = "";
+        /*
+         * Reset form.
+         */
 
-        document
-            .getElementById("userPhone")
-            .value = "";
+        document.getElementById(
+            "fullName"
+        ).value = "";
 
+        document.getElementById(
+            "userPhone"
+        ).value = "";
 
-        await loadDashboard();
+        await loadData();
 
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi tạo tài khoản:\n\n" +
+            "Lỗi tạo tài khoản: " +
             error.message
         );
 
@@ -1270,45 +1663,43 @@ async function handleCreateUser(event) {
         button.innerText =
             "Tạo Tài Khoản";
 
-        hideLoading();
-
     }
 
 }
 
 
-// ==========================================================
-// RESET PASSWORD
-// ==========================================================
+/*
+============================================================
+ RESET PASSWORD
+============================================================
+*/
 
 async function resetUserPassword(
     userId,
     userName
 ) {
 
-    if (
-        !confirm(
-            `Bạn có chắc muốn reset mật khẩu của "${userName}"?\n\n` +
-            `Hệ thống sẽ tạo một mật khẩu 6 chữ số mới.`
-        )
-    ) {
+    const confirmed =
+        confirm(
+            `Bạn có chắc muốn reset mật khẩu của "${userName}"?`
+        );
 
+
+    if (!confirmed) {
         return;
     }
-
-
-    showLoading(
-        "Đang tạo mật khẩu mới..."
-    );
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/users/${userId}/reset-password`,
+                "/api/admin/users/" +
+                encodeURIComponent(userId) +
+                "/reset-password",
                 {
-                    method: "POST"
+                    method: "POST",
+                    body: JSON.stringify({})
                 }
             );
 
@@ -1323,36 +1714,34 @@ async function resetUserPassword(
         }
 
 
-        alert(
-            `RESET MẬT KHẨU THÀNH CÔNG\n\n` +
-
-            `Người dùng: ${userName}\n\n` +
-
-            `MẬT KHẨU MỚI: ${data.new_password}\n\n` +
-
-            `Hãy lưu/gửi mật khẩu này cho người dùng.`
-        );
+        showPasswordModal({
+            id: userId,
+            full_name: userName,
+            email: "",
+            password:
+                data.new_password
+        });
 
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi reset mật khẩu:\n\n" +
+            "Lỗi reset mật khẩu: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// BẬT / TẮT GIÁO VIÊN
-// ==========================================================
+/*
+============================================================
+ BẬT / TẮT GIÁO VIÊN
+============================================================
+*/
 
 async function toggleTeacherStatus(
     userId,
@@ -1361,40 +1750,38 @@ async function toggleTeacherStatus(
 ) {
 
     const newStatus =
-        !currentStatus;
+        !Boolean(currentStatus);
 
 
     const action =
         newStatus
-            ? "KÍCH HOẠT"
-            : "TẮT";
+            ? "kích hoạt"
+            : "khóa";
 
 
     if (
         !confirm(
-            `Bạn có chắc muốn ${action} tài khoản giáo viên "${userName}"?`
+            `Bạn có chắc muốn ${action} giáo viên "${userName}"?`
         )
     ) {
 
         return;
+
     }
-
-
-    showLoading(
-        "Đang cập nhật giáo viên..."
-    );
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/users/${userId}/status`,
+                "/api/admin/users/" +
+                encodeURIComponent(userId) +
+                "/status",
                 {
                     method: "PUT",
-
                     body: JSON.stringify({
-                        is_active: newStatus
+                        is_active:
+                            newStatus
                     })
                 }
             );
@@ -1404,76 +1791,68 @@ async function toggleTeacherStatus(
 
             throw new Error(
                 data.error ||
-                "Không thể cập nhật."
+                "Không thể cập nhật giáo viên."
             );
 
         }
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi:\n" +
+            "Lỗi cập nhật giáo viên: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// ẨN / KHÔI PHỤC HỌC SINH
-// ==========================================================
+/*
+============================================================
+ ẨN / KHÔI PHỤC HỌC SINH
+============================================================
+*/
 
-async function toggleStudentDeleted(
+async function toggleDelete(
     studentId,
-    currentDeleted,
-    studentName
+    status
 ) {
 
-    const newStatus =
-        !currentDeleted;
-
-
     const action =
-        newStatus
-            ? "ẨN"
-            : "KHÔI PHỤC";
+        status
+            ? "ẩn"
+            : "khôi phục";
 
 
     if (
         !confirm(
-            `Bạn có chắc muốn ${action} học sinh "${studentName}"?`
+            `Bạn có chắc muốn ${action} học sinh này?`
         )
     ) {
 
         return;
+
     }
-
-
-    showLoading(
-        "Đang cập nhật học sinh..."
-    );
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/students/${studentId}/status`,
+                "/api/admin/students/" +
+                encodeURIComponent(studentId) +
+                "/status",
                 {
                     method: "PUT",
-
                     body: JSON.stringify({
-                        is_deleted: newStatus
+                        is_deleted:
+                            Boolean(status)
                     })
                 }
             );
@@ -1483,72 +1862,60 @@ async function toggleStudentDeleted(
 
             throw new Error(
                 data.error ||
-                "Không thể cập nhật."
+                "Không thể cập nhật học sinh."
             );
 
         }
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi:\n" +
+            "Lỗi cập nhật học sinh: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// XÓA VĨNH VIỄN HỌC SINH
-// ==========================================================
+/*
+============================================================
+ XÓA VĨNH VIỄN
+============================================================
+*/
 
-async function hardDeleteStudent(
+async function hardDelete(
     studentId,
     studentName
 ) {
 
-    const confirm1 =
+    const confirmed =
         confirm(
-            `CẢNH BÁO!\n\n` +
-            `Bạn sắp XÓA VĨNH VIỄN học sinh:\n` +
-            `"${studentName}"\n\n` +
-            `Dữ liệu profile và tài khoản đăng nhập sẽ bị xóa.\n\n` +
-            `Tiếp tục?`
+            "CẢNH BÁO!\n\n" +
+            `Bạn có chắc chắn muốn XÓA VĨNH VIỄN "${studentName}"?\n\n` +
+            "Tài khoản Auth và profile sẽ bị xóa. " +
+            "Dữ liệu liên quan có thể bị xóa theo CASCADE.\n\n" +
+            "Hành động này không thể hoàn tác."
         );
 
 
-    if (!confirm1) return;
-
-
-    const confirm2 =
-        confirm(
-            "Đây là thao tác KHÔNG THỂ HOÀN TÁC.\n\nBạn chắc chắn muốn xóa?"
-        );
-
-
-    if (!confirm2) return;
-
-
-    showLoading(
-        "Đang xóa học sinh..."
-    );
+    if (!confirmed) {
+        return;
+    }
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/students/${studentId}`,
+                "/api/admin/students/" +
+                encodeURIComponent(studentId),
                 {
                     method: "DELETE"
                 }
@@ -1566,56 +1933,45 @@ async function hardDeleteStudent(
 
 
         alert(
-            "Đã xóa học sinh."
+            "Đã xóa vĩnh viễn học sinh."
         );
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi xóa học sinh:\n\n" +
+            "Lỗi xóa học sinh: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// GIA HẠN HỌC PHÍ
-// ==========================================================
+/*
+============================================================
+ GIA HẠN HỌC PHÍ
+============================================================
+*/
 
-async function extendStudent(
+async function extendTuition(
     studentId,
-    studentName,
-    defaultMonths = 1
+    months,
+    studentName = ""
 ) {
 
-    const value =
-        prompt(
-            `Gia hạn học phí cho "${studentName}".\n\nNhập số tháng:`,
-            defaultMonths
-        );
-
-
-    if (value === null) return;
-
-
-    const months =
-        Number(value);
+    const monthCount =
+        Number(months);
 
 
     if (
-        !Number.isInteger(months) ||
-        months < 1
+        !Number.isInteger(monthCount) ||
+        monthCount < 1
     ) {
 
         alert(
@@ -1623,24 +1979,33 @@ async function extendStudent(
         );
 
         return;
+
     }
 
 
-    showLoading(
-        "Đang gia hạn học phí..."
-    );
+    const confirmed =
+        confirm(
+            `Gia hạn ${monthCount} tháng cho "${studentName || "học sinh này"}"?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/students/${studentId}/extend`,
+                "/api/admin/students/" +
+                encodeURIComponent(studentId) +
+                "/extend",
                 {
                     method: "POST",
-
                     body: JSON.stringify({
-                        months
+                        months:
+                            monthCount
                     })
                 }
             );
@@ -1650,73 +2015,75 @@ async function extendStudent(
 
             throw new Error(
                 data.error ||
-                "Không thể gia hạn."
+                "Không thể gia hạn học phí."
             );
 
         }
 
 
         alert(
-            `Đã gia hạn ${months} tháng cho ${studentName}.\n\n` +
-            `Hạn mới: ${formatDate(data.new_expired_at)}`
+            "Đã gia hạn thành công.\nHạn mới: " +
+            formatDate(
+                data.new_expired_at
+            )
         );
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi gia hạn:\n" +
+            "Lỗi gia hạn: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// DUYỆT HỌC PHÍ
-// ==========================================================
+/*
+============================================================
+ DUYỆT HỌC PHÍ
+============================================================
+*/
 
 async function approveTuition(
     requestId,
-    studentName,
-    months
+    months,
+    studentName
 ) {
 
-    if (
-        !confirm(
-            `Duyệt học phí cho "${studentName}"?\n\n` +
-            `Gia hạn: ${months} tháng`
-        )
-    ) {
+    const monthCount =
+        Number(months || 1);
 
+
+    const confirmed =
+        confirm(
+            `Duyệt học phí cho "${studentName}" và gia hạn ${monthCount} tháng?`
+        );
+
+
+    if (!confirmed) {
         return;
     }
-
-
-    showLoading(
-        "Đang duyệt học phí..."
-    );
 
 
     try {
 
         const data =
             await workerFetch(
-                `/api/admin/tuition/${requestId}/approve`,
+                "/api/admin/tuition/" +
+                encodeURIComponent(requestId) +
+                "/approve",
                 {
                     method: "POST",
-
                     body: JSON.stringify({
-                        months
+                        months:
+                            monthCount
                     })
                 }
             );
@@ -1733,512 +2100,708 @@ async function approveTuition(
 
 
         alert(
-            `Đã duyệt học phí cho ${studentName}.\n\n` +
-            `Hạn mới: ${formatDate(data.new_expired_at)}`
+            "Đã duyệt học phí thành công.\n" +
+            "Hạn mới: " +
+            formatDate(
+                data.new_expired_at
+            )
         );
 
 
-        await loadDashboard();
-
+        await loadData();
 
     } catch (error) {
 
+        console.error(error);
+
         alert(
-            "Lỗi duyệt học phí:\n\n" +
+            "Lỗi duyệt học phí: " +
             error.message
         );
-
-    } finally {
-
-        hideLoading();
 
     }
 
 }
 
 
-// ==========================================================
-// TOGGLE CLASS SELECT
-// ==========================================================
+/*
+============================================================
+ MODAL PASSWORD
+============================================================
+*/
 
-function toggleClassSelect() {
+function showPasswordModal(user) {
 
-    const role =
-        document
-            .getElementById("userRole")
-            .value;
-
-
-    document
-        .getElementById("classSelectBox")
-        .style.display =
-            role === "student"
-                ? "block"
-                : "none";
-
-}
+    document.getElementById(
+        "resultName"
+    ).innerText =
+        user?.full_name || "—";
 
 
-// ==========================================================
-// RENDER CLASSES
-// ==========================================================
+    document.getElementById(
+        "resultEmail"
+    ).innerText =
+        user?.email ||
+        user?.login_phone ||
+        "—";
 
-function renderClasses(classes) {
 
-    const activeClasses =
-        (classes || []).filter(
-            c => c.is_active !== false
+    document.getElementById(
+        "resultPassword"
+    ).value =
+        user?.password || "";
+
+
+    const modal =
+        document.getElementById(
+            "passwordModal"
         );
 
 
-    const classOptions =
-        activeClasses
-            .map(c =>
-                `<option value="${escapeHtml(c.id)}">
-                    ${escapeHtml(c.class_name)}
-                </option>`
-            )
-            .join("");
+    modal.classList.remove(
+        "hidden"
+    );
+
+    modal.classList.add(
+        "flex"
+    );
 
 
-    document
-        .getElementById("userClass")
-        .innerHTML =
-            `<option value="">
-                -- Chọn lớp --
-            </option>` +
-            classOptions;
-
-
-    document
-        .getElementById("classToReassign")
-        .innerHTML =
-            `<option value="">
-                -- Chọn lớp --
-            </option>` +
-            (classes || [])
-                .map(c =>
-                    `<option value="${escapeHtml(c.id)}">
-                        ${escapeHtml(c.class_name)}
-                        ${c.is_active === false ? " (Đã tắt)" : ""}
-                    </option>`
-                )
-                .join("");
-
-
-    document
-        .getElementById("classStatusList")
-        .innerHTML =
-            !classes?.length
-
-                ? `<p class="text-xs text-slate-400">
-                    Chưa có lớp.
-                   </p>`
-
-                : classes
-                    .map(c => {
-
-                        const active =
-                            c.is_active !== false;
-
-
-                        return `
-
-                        <div class="flex items-center justify-between border border-slate-100 rounded-xl px-3 py-2">
-
-                            <div>
-
-                                <p class="font-semibold text-sm">
-                                    ${escapeHtml(c.class_name)}
-                                </p>
-
-                                <p class="text-xs text-slate-400">
-                                    ${c.teacher_id ? "Đã có giáo viên" : "Chưa có giáo viên"}
-                                </p>
-
-                            </div>
-
-                            <button
-                                onclick="toggleClassStatus(
-                                    '${escapeHtml(c.id)}',
-                                    ${active},
-                                    '${escapeHtml(c.class_name)}'
-                                )"
-                                class="text-xs font-bold px-2.5 py-1.5 rounded-lg ${
-                                    active
-                                    ? "bg-green-50 text-green-700"
-                                    : "bg-slate-100 text-slate-600"
-                                }"
-                            >
-
-                                ${active ? "Đang hoạt động" : "Đã tắt"}
-
-                            </button>
-
-                        </div>
-
-                        `;
-
-                    })
-                    .join("");
+    lucide.createIcons();
 
 }
 
 
-// ==========================================================
-// RENDER TEACHERS
-// ==========================================================
+function closePasswordModal() {
 
-function renderTeachers(teachers) {
-
-    document
-        .getElementById("teacherCount")
-        .innerText =
-            `${teachers?.length || 0} giáo viên`;
+    const modal =
+        document.getElementById(
+            "passwordModal"
+        );
 
 
-    document
-        .getElementById("teacherTable")
-        .innerHTML =
+    modal.classList.add(
+        "hidden"
+    );
 
-        !teachers?.length
+    modal.classList.remove(
+        "flex"
+    );
 
-        ? `
+}
+
+
+async function copyGeneratedPassword() {
+
+    const input =
+        document.getElementById(
+            "resultPassword"
+        );
+
+
+    if (!input.value) {
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            input.value
+        );
+
+        alert(
+            "Đã copy mật khẩu."
+        );
+
+    } catch {
+
+        input.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        alert(
+            "Đã copy mật khẩu."
+        );
+
+    }
+
+}
+
+
+/*
+============================================================
+ RENDER TEACHERS
+============================================================
+*/
+
+function renderTeachers(
+    teachers
+) {
+
+    const table =
+        document.getElementById(
+            "teacherTable"
+        );
+
+
+    if (
+        !Array.isArray(teachers) ||
+        teachers.length === 0
+    ) {
+
+        table.innerHTML = `
             <tr>
-                <td colspan="3"
-                    class="py-6 text-center text-slate-400">
-                    Chưa có giáo viên.
+                <td
+                    colspan="4"
+                    class="py-6 text-center text-slate-400"
+                >
+                    Chưa có giáo viên nào.
                 </td>
             </tr>
-          `
+        `;
 
-        :
+        return;
 
-        teachers
-            .map(t => {
+    }
+
+
+    table.innerHTML =
+        teachers.map(
+            teacher => {
 
                 const active =
-                    t.is_active !== false;
+                    teacher.is_active !== false &&
+                    teacher.is_deleted !== true;
 
 
                 return `
+                    <tr class="hover:bg-slate-50">
 
-                <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-4">
 
-                    <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">
+                                ${escapeHtml(
+                                    teacher.full_name
+                                )}
+                            </div>
 
-                        <div class="font-bold">
-                            ${escapeHtml(t.full_name)}
-                        </div>
-
-                    </td>
+                        </td>
 
 
-                    <td class="py-3 px-4">
-
-                        <span class="text-xs px-2.5 py-1 rounded-lg font-semibold ${
-                            active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-slate-100 text-slate-600"
-                        }">
+                        <td class="py-3 px-4">
 
                             ${
                                 active
-                                ? "Đang hoạt động"
-                                : "Đã tắt"
+
+                                ?
+
+                                `
+                                <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
+                                    Đang hoạt động
+                                </span>
+                                `
+
+                                :
+
+                                `
+                                <span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">
+                                    Đã khóa
+                                </span>
+                                `
                             }
 
-                        </span>
-
-                    </td>
+                        </td>
 
 
-                    <td class="py-3 px-4 text-right">
-
-                        <div class="flex justify-end gap-1 flex-wrap">
-
-                            <button
-                                onclick="resetUserPassword(
-                                    '${escapeHtml(t.id)}',
-                                    '${escapeHtml(t.full_name)}'
-                                )"
-                                class="text-xs bg-amber-50 text-amber-700 font-bold px-3 py-1.5 rounded-lg"
-                            >
-                                Reset Pass
-                            </button>
+                        <td class="py-3 px-4 text-xs text-slate-500">
+                            ${formatDateTime(
+                                teacher.created_at
+                            )}
+                        </td>
 
 
-                            <button
-                                onclick="toggleTeacherStatus(
-                                    '${escapeHtml(t.id)}',
-                                    ${active},
-                                    '${escapeHtml(t.full_name)}'
-                                )"
-                                class="text-xs ${
-                                    active
-                                    ? "bg-slate-100 text-slate-600"
-                                    : "bg-green-50 text-green-700"
-                                } font-bold px-3 py-1.5 rounded-lg"
-                            >
+                        <td class="py-3 px-4">
 
-                                ${
-                                    active
-                                    ? "Tắt"
-                                    : "Kích hoạt"
-                                }
+                            <div class="flex justify-end gap-2 flex-wrap">
 
-                            </button>
+                                <button
+                                    onclick="resetUserPassword(
+                                        '${teacher.id}',
+                                        '${escapeHtml(
+                                            teacher.full_name
+                                        )}'
+                                    )"
+                                    class="text-xs bg-amber-50 text-amber-700 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-100 transition"
+                                >
+                                    Reset Pass
+                                </button>
 
-                        </div>
 
-                    </td>
+                                <button
+                                    onclick="toggleTeacherStatus(
+                                        '${teacher.id}',
+                                        ${active},
+                                        '${escapeHtml(
+                                            teacher.full_name
+                                        )}'
+                                    )"
+                                    class="text-xs ${
+                                        active
+                                            ? "bg-red-50 text-red-600 hover:bg-red-100"
+                                            : "bg-green-50 text-green-600 hover:bg-green-100"
+                                    } font-bold px-3 py-1.5 rounded-lg transition"
+                                >
+                                    ${
+                                        active
+                                            ? "Khóa"
+                                            : "Kích hoạt"
+                                    }
+                                </button>
 
-                </tr>
+                            </div>
 
+                        </td>
+
+                    </tr>
                 `;
 
-            })
-            .join("");
+            }
+        ).join("");
 
 }
 
 
-// ==========================================================
-// RENDER STUDENTS
-// ==========================================================
+/*
+============================================================
+ RENDER STUDENTS
+============================================================
+*/
 
-function renderStudents(students) {
+function renderStudents(
+    students
+) {
 
-    document
-        .getElementById("studentCount")
-        .innerText =
-            `${students?.length || 0} học sinh`;
+    const table =
+        document.getElementById(
+            "studentTable"
+        );
+
+
+    document.getElementById(
+        "studentCount"
+    ).innerText =
+        `${students?.length || 0} học sinh`;
+
+
+    if (
+        !Array.isArray(students) ||
+        students.length === 0
+    ) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="py-6 text-center text-slate-400"
+                >
+                    Chưa có học sinh nào.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
 
 
     const now =
         new Date();
 
 
-    document
-        .getElementById("studentTable")
-        .innerHTML =
+    table.innerHTML =
+        students.map(
+            student => {
 
-        !students?.length
-
-        ? `
-            <tr>
-                <td colspan="5"
-                    class="py-6 text-center text-slate-400">
-                    Chưa có học sinh.
-                </td>
-            </tr>
-          `
-
-        :
-
-        students
-            .map(s => {
-
-                const exp =
-                    s.expired_at
-                        ? new Date(s.expired_at)
+                const expiredAt =
+                    student.expired_at
+                        ? new Date(
+                            student.expired_at
+                        )
                         : null;
 
 
-                const expired =
-                    exp && exp < now;
+                const isExpired =
+                    expiredAt &&
+                    expiredAt < now;
 
 
-                let status;
+                const hidden =
+                    student.is_deleted === true;
 
 
-                if (s.is_deleted) {
+                let statusHtml;
 
-                    status =
-                        `<span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
-                            Đã ẩn
-                         </span>`;
 
-                } else if (!s.is_active) {
+                if (hidden) {
 
-                    status =
-                        `<span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
-                            Đã tắt
-                         </span>`;
+                    statusHtml = `
+                        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
+                            Đã Ẩn
+                        </span>
+                    `;
 
-                } else if (expired) {
+                } else if (isExpired) {
 
-                    status =
-                        `<span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">
-                            Quá hạn
-                         </span>`;
+                    statusHtml = `
+                        <span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-semibold">
+                            Quá Hạn
+                        </span>
+                    `;
 
                 } else {
 
-                    status =
-                        `<span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
-                            Đang học
-                         </span>`;
+                    statusHtml = `
+                        <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
+                            Đang Học
+                        </span>
+                    `;
 
                 }
 
 
                 return `
+                    <tr class="hover:bg-slate-50">
 
-                <tr class="hover:bg-slate-50">
+                        <td class="py-3 px-4">
 
-                    <td class="py-3 px-4">
-
-                        <div class="font-bold ${
-                            s.is_deleted
-                            ? "line-through text-slate-400"
-                            : ""
-                        }">
-
-                            ${escapeHtml(s.full_name)}
-
-                        </div>
-
-                    </td>
-
-
-                    <td class="py-3 px-4 text-slate-600">
-
-                        ${
-                            escapeHtml(
-                                s.classes?.class_name ||
-                                "Chưa xếp lớp"
-                            )
-                        }
-
-                    </td>
-
-
-                    <td class="py-3 px-4 ${
-                        expired
-                        ? "text-red-600 font-bold"
-                        : ""
-                    }">
-
-                        ${formatDate(s.expired_at)}
-
-                    </td>
-
-
-                    <td class="py-3 px-4">
-
-                        ${status}
-
-                    </td>
-
-
-                    <td class="py-3 px-4">
-
-                        <div class="flex justify-end gap-1 flex-wrap">
-
-                            <button
-                                onclick="extendStudent(
-                                    '${escapeHtml(s.id)}',
-                                    '${escapeHtml(s.full_name)}',
-                                    1
-                                )"
-                                class="text-xs bg-blue-50 text-blue-600 font-bold px-2.5 py-1.5 rounded-lg"
+                            <div
+                                class="font-bold ${
+                                    hidden
+                                        ? "line-through text-slate-400"
+                                        : "text-slate-800"
+                                }"
                             >
-                                Gia hạn
-                            </button>
+                                ${escapeHtml(
+                                    student.full_name
+                                )}
+                            </div>
+
+                        </td>
 
 
-                            <button
-                                onclick="resetUserPassword(
-                                    '${escapeHtml(s.id)}',
-                                    '${escapeHtml(s.full_name)}'
-                                )"
-                                class="text-xs bg-amber-50 text-amber-700 font-bold px-2.5 py-1.5 rounded-lg"
-                            >
-                                Reset Pass
-                            </button>
+                        <td class="py-3 px-4 text-slate-600">
+
+                            ${
+                                student.classes?.class_name
+                                    ? escapeHtml(
+                                        student.classes.class_name
+                                    )
+                                    : "Chưa xếp lớp"
+                            }
+
+                        </td>
 
 
-                            <button
-                                onclick="toggleStudentDeleted(
-                                    '${escapeHtml(s.id)}',
-                                    ${Boolean(s.is_deleted)},
-                                    '${escapeHtml(s.full_name)}'
-                                )"
-                                class="text-xs ${
-                                    s.is_deleted
-                                    ? "bg-green-50 text-green-700"
-                                    : "bg-slate-100 text-slate-600"
-                                } font-bold px-2.5 py-1.5 rounded-lg"
-                            >
+                        <td
+                            class="py-3 px-4 font-medium ${
+                                isExpired
+                                    ? "text-red-600 font-bold"
+                                    : "text-slate-700"
+                            }"
+                        >
+
+                            ${
+                                expiredAt
+                                    ? formatDate(
+                                        expiredAt
+                                    )
+                                    : "Chưa có"
+                            }
+
+                        </td>
+
+
+                        <td class="py-3 px-4">
+
+                            ${statusHtml}
+
+                        </td>
+
+
+                        <td class="py-3 px-4">
+
+                            <div class="flex justify-end gap-1 flex-wrap">
+
+                                <button
+                                    onclick="extendTuition(
+                                        '${student.id}',
+                                        1,
+                                        '${escapeHtml(
+                                            student.full_name
+                                        )}'
+                                    )"
+                                    class="text-xs bg-blue-50 text-blue-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition"
+                                >
+                                    +1 Tháng
+                                </button>
+
+
+                                <button
+                                    onclick="resetUserPassword(
+                                        '${student.id}',
+                                        '${escapeHtml(
+                                            student.full_name
+                                        )}'
+                                    )"
+                                    class="text-xs bg-amber-50 text-amber-700 font-bold px-2.5 py-1.5 rounded-lg hover:bg-amber-100 transition"
+                                >
+                                    Reset Pass
+                                </button>
+
 
                                 ${
-                                    s.is_deleted
-                                    ? "Khôi phục"
-                                    : "Ẩn"
+                                    hidden
+
+                                    ?
+
+                                    `
+                                    <button
+                                        onclick="toggleDelete(
+                                            '${student.id}',
+                                            false
+                                        )"
+                                        class="text-xs bg-green-50 text-green-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-green-100 transition"
+                                    >
+                                        Khôi phục
+                                    </button>
+                                    `
+
+                                    :
+
+                                    `
+                                    <button
+                                        onclick="toggleDelete(
+                                            '${student.id}',
+                                            true
+                                        )"
+                                        class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-slate-200 transition"
+                                    >
+                                        Ẩn
+                                    </button>
+                                    `
                                 }
 
-                            </button>
 
+                                <button
+                                    onclick="hardDelete(
+                                        '${student.id}',
+                                        '${escapeHtml(
+                                            student.full_name
+                                        )}'
+                                    )"
+                                    class="text-xs bg-red-50 text-red-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-red-100 transition"
+                                >
+                                    Xóa Vĩnh Viễn
+                                </button>
 
-                            <button
-                                onclick="hardDeleteStudent(
-                                    '${escapeHtml(s.id)}',
-                                    '${escapeHtml(s.full_name)}'
-                                )"
-                                class="text-xs bg-red-50 text-red-600 font-bold px-2.5 py-1.5 rounded-lg"
-                            >
-                                Xóa Vĩnh Viễn
-                            </button>
+                            </div>
 
-                        </div>
+                        </td>
 
-                    </td>
-
-                </tr>
-
+                    </tr>
                 `;
 
-            })
-            .join("");
+            }
+        ).join("");
 
 }
 
 
-// ==========================================================
-// RENDER TUITION
-// ==========================================================
+/*
+============================================================
+ RENDER CLASSES
+============================================================
+*/
 
-function renderTuition(requests) {
+function renderClasses(
+    classes
+) {
 
-    document
-        .getElementById("pendingCount")
-        .innerText =
-            `${requests?.length || 0} yêu cầu`;
+    const table =
+        document.getElementById(
+            "classTable"
+        );
 
 
-    document
-        .getElementById("tuitionTable")
-        .innerHTML =
+    document.getElementById(
+        "classCount"
+    ).innerText =
+        `${classes?.length || 0} lớp`;
 
-        !requests?.length
 
-        ? `
+    if (
+        !Array.isArray(classes) ||
+        classes.length === 0
+    ) {
+
+        table.innerHTML = `
             <tr>
-                <td colspan="6"
-                    class="py-6 text-center text-slate-400">
+                <td
+                    colspan="4"
+                    class="py-6 text-center text-slate-400"
+                >
+                    Chưa có lớp nào.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    table.innerHTML =
+        classes.map(
+            cls => {
+
+                const active =
+                    cls.is_active !== false;
+
+
+                return `
+                    <tr class="hover:bg-slate-50">
+
+                        <td class="py-3 px-4 font-bold text-slate-800">
+                            ${escapeHtml(
+                                cls.class_name
+                            )}
+                        </td>
+
+
+                        <td class="py-3 px-4 text-slate-600">
+                            ${
+                                cls.teacher?.full_name
+                                    ? escapeHtml(
+                                        cls.teacher.full_name
+                                    )
+                                    : "Chưa phân công"
+                            }
+                        </td>
+
+
+                        <td class="py-3 px-4">
+
+                            ${
+                                active
+
+                                ?
+
+                                `
+                                <span class="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg font-semibold">
+                                    Đang hoạt động
+                                </span>
+                                `
+
+                                :
+
+                                `
+                                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold">
+                                    Đã tắt
+                                </span>
+                                `
+                            }
+
+                        </td>
+
+
+                        <td class="py-3 px-4 text-right">
+
+                            <button
+                                onclick="toggleClassStatus(
+                                    '${cls.id}',
+                                    ${active}
+                                )"
+                                class="text-xs ${
+                                    active
+                                        ? "bg-red-50 text-red-600 hover:bg-red-100"
+                                        : "bg-green-50 text-green-600 hover:bg-green-100"
+                                } font-bold px-3 py-1.5 rounded-lg transition"
+                            >
+                                ${
+                                    active
+                                        ? "Tắt lớp"
+                                        : "Bật lớp"
+                                }
+                            </button>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/*
+============================================================
+ RENDER TUITION REQUESTS
+============================================================
+*/
+
+function renderTuitionRequests(
+    requests
+) {
+
+    const table =
+        document.getElementById(
+            "tuitionTable"
+        );
+
+
+    document.getElementById(
+        "pendingCount"
+    ).innerText =
+        `${requests?.length || 0} yêu cầu`;
+
+
+    if (
+        !Array.isArray(requests) ||
+        requests.length === 0
+    ) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="6"
+                    class="py-6 text-center text-slate-400"
+                >
                     Không có yêu cầu học phí chờ duyệt.
                 </td>
             </tr>
-          `
+        `;
 
-        :
+        return;
 
-        requests
-            .map(r => {
+    }
+
+
+    table.innerHTML =
+        requests.map(
+            request => {
 
                 const profile =
-                    r.profiles || {};
+                    request.profiles || {};
+
+
+                const studentName =
+                    profile.full_name ||
+                    "Học sinh";
 
 
                 const className =
@@ -2246,96 +2809,222 @@ function renderTuition(requests) {
                     "Chưa xếp lớp";
 
 
+                const months =
+                    Number(
+                        request.months || 1
+                    );
+
+
                 return `
+                    <tr class="hover:bg-slate-50">
 
-                <tr class="hover:bg-slate-50">
-
-                    <td class="py-3 px-4 font-bold">
-
-                        ${escapeHtml(
-                            profile.full_name ||
-                            "Học sinh"
-                        )}
-
-                    </td>
-
-
-                    <td class="py-3 px-4 text-slate-500">
-
-                        ${escapeHtml(className)}
-
-                    </td>
-
-
-                    <td class="py-3 px-4 font-semibold text-blue-600">
-
-                        +${Number(r.months || 0)}
-                        tháng
-
-                    </td>
-
-
-                    <td class="py-3 px-4">
-
-                        <span class="font-mono text-xs bg-slate-50 px-2 py-1 rounded">
-
+                        <td class="py-3 px-4 font-bold">
                             ${escapeHtml(
-                                r.transaction_code ||
-                                "Chuyển khoản"
+                                studentName
                             )}
-
-                        </span>
-
-                    </td>
+                        </td>
 
 
-                    <td class="py-3 px-4 text-xs">
+                        <td class="py-3 px-4 text-slate-500">
+                            ${escapeHtml(
+                                className
+                            )}
+                        </td>
 
-                        ${formatDateTime(r.created_at)}
 
-                    </td>
+                        <td class="py-3 px-4 font-semibold text-blue-600">
+                            +${months} Tháng
+                        </td>
 
 
-                    <td class="py-3 px-4 text-right">
+                        <td class="py-3 px-4">
 
-                        <button
-                            onclick="approveTuition(
-                                '${escapeHtml(r.id)}',
-                                '${escapeHtml(
-                                    profile.full_name ||
-                                    "Học sinh"
-                                )}',
-                                ${Number(r.months || 1)}
-                            )"
-                            class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-xl font-bold"
-                        >
-                            Duyệt Gia Hạn
-                        </button>
+                            <span class="font-mono text-xs bg-slate-50 px-2 py-1 rounded">
+                                ${escapeHtml(
+                                    request.transaction_code ||
+                                    "Chuyển khoản"
+                                )}
+                            </span>
 
-                    </td>
+                        </td>
 
-                </tr>
 
+                        <td class="py-3 px-4 text-xs">
+                            ${formatDateTime(
+                                request.created_at
+                            )}
+                        </td>
+
+
+                        <td class="py-3 px-4 text-right">
+
+                            <button
+                                onclick="approveTuition(
+                                    '${request.id}',
+                                    ${months},
+                                    '${escapeHtml(
+                                        studentName
+                                    )}'
+                                )"
+                                class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-xl font-bold transition"
+                            >
+                                Duyệt Gia Hạn
+                            </button>
+
+                        </td>
+
+                    </tr>
                 `;
 
-            })
-            .join("");
+            }
+        ).join("");
 
 }
 
 
-// ==========================================================
-// LOAD DASHBOARD
-// ==========================================================
+/*
+============================================================
+ SELECT OPTIONS
+============================================================
+*/
 
-async function loadDashboard() {
+function renderSelectOptions(
+    classes,
+    teachers
+) {
 
-    showLoading(
-        "Đang tải dữ liệu..."
-    );
+    /*
+     * Classes
+     */
 
+    const classOptions =
+        Array.isArray(classes)
+            ? classes.map(
+                cls => `
+                    <option value="${escapeHtml(cls.id)}">
+                        ${escapeHtml(
+                            cls.class_name
+                        )}
+                    </option>
+                `
+            ).join("")
+            : "";
+
+
+    document.getElementById(
+        "userClass"
+    ).innerHTML =
+        `
+        <option value="">
+            -- Chọn lớp --
+        </option>
+        ` +
+        classOptions;
+
+
+    document.getElementById(
+        "classToReassign"
+    ).innerHTML =
+        `
+        <option value="">
+            -- Chọn lớp cần đổi GV --
+        </option>
+        ` +
+        classOptions;
+
+
+    /*
+     * Teacher options
+     */
+
+    const teacherOptions =
+        Array.isArray(teachers)
+            ? teachers.map(
+                teacher => `
+                    <option value="${escapeHtml(teacher.id)}">
+                        ${escapeHtml(
+                            teacher.full_name
+                        )}
+                    </option>
+                `
+            ).join("")
+            : "";
+
+
+    document.getElementById(
+        "teacherSelect"
+    ).innerHTML =
+        `
+        <option value="">
+            -- Chọn GV --
+        </option>
+        ` +
+        teacherOptions;
+
+
+    document.getElementById(
+        "newTeacherForClass"
+    ).innerHTML =
+        `
+        <option value="">
+            -- Bàn giao cho GV --
+        </option>
+        ` +
+        teacherOptions;
+
+
+    /*
+     * Class status select
+     */
+
+    document.getElementById(
+        "classStatusSelect"
+    ).innerHTML =
+        `
+        <option value="">
+            -- Chọn lớp --
+        </option>
+        ` +
+        (
+            Array.isArray(classes)
+                ? classes.map(
+                    cls => `
+                        <option
+                            value="${escapeHtml(cls.id)}"
+                            data-active="${cls.is_active !== false}"
+                        >
+                            ${escapeHtml(
+                                cls.class_name
+                            )}
+                            —
+                            ${
+                                cls.is_active !== false
+                                    ? "Đang bật"
+                                    : "Đang tắt"
+                            }
+                        </option>
+                    `
+                ).join("")
+                : ""
+        );
+
+}
+
+
+/*
+============================================================
+ LOAD DATA
+============================================================
+*/
+
+async function loadData() {
 
     try {
+
+        showLoading(
+            "Đang tải dữ liệu Admin..."
+        );
+
 
         const data =
             await workerFetch(
@@ -2347,7 +3036,7 @@ async function loadDashboard() {
 
             throw new Error(
                 data.error ||
-                "Không thể tải dashboard."
+                "Không thể tải dữ liệu Admin."
             );
 
         }
@@ -2371,75 +3060,55 @@ async function loadDashboard() {
                 : [];
 
 
-        const tuition =
-            Array.isArray(data.tuition_requests)
+        const tuitionRequests =
+            Array.isArray(
+                data.tuition_requests
+            )
                 ? data.tuition_requests
                 : [];
 
 
-        // Lọc đúng role
+        /*
+         * Render
+         */
 
         renderTeachers(
-            teachers.filter(
-                t => t.role === "teacher"
-            )
+            teachers
         );
-
 
         renderStudents(
-            students.filter(
-                s => s.role === "student"
-            )
+            students
         );
-
 
         renderClasses(
             classes
         );
 
+        renderTuitionRequests(
+            tuitionRequests
+        );
 
-        renderTuition(
-            tuition
+        renderSelectOptions(
+            classes,
+            teachers
         );
 
 
-        // Select giáo viên
+        /*
+         * Admin name
+         */
 
-        const activeTeachers =
-            teachers.filter(
-                t =>
-                    t.role === "teacher" &&
-                    t.is_active !== false &&
-                    t.is_deleted !== true
-            );
+        if (data.admin) {
 
+            document.getElementById(
+                "adminName"
+            ).innerText =
+                data.admin.full_name
+                    ? "Admin: " +
+                      data.admin.full_name
+                    : "Admin";
 
-        const teacherOptions =
-            activeTeachers
-                .map(t =>
-                    `<option value="${escapeHtml(t.id)}">
-                        ${escapeHtml(t.full_name)}
-                    </option>`
-                )
-                .join("");
-
-
-        document
-            .getElementById("teacherSelect")
-            .innerHTML =
-                `<option value="">
-                    -- Chưa chọn giáo viên --
-                 </option>` +
-                teacherOptions;
-
-
-        document
-            .getElementById("newTeacherForClass")
-            .innerHTML =
-                `<option value="">
-                    -- Không có giáo viên --
-                 </option>` +
-                teacherOptions;
+        }
 
 
         lucide.createIcons();
@@ -2447,12 +3116,23 @@ async function loadDashboard() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "loadData:",
+            error
+        );
+
+
+        /*
+         * Không redirect ở đây.
+         *
+         * Nếu Worker báo lỗi thì hiển thị để dễ debug.
+         */
 
         alert(
             "Không thể tải dữ liệu Admin:\n\n" +
             error.message
         );
+
 
     } finally {
 
@@ -2463,49 +3143,123 @@ async function loadDashboard() {
 }
 
 
-// ==========================================================
-// KHỞI ĐỘNG
-// ==========================================================
+/*
+============================================================
+ KHỞI ĐỘNG
+============================================================
+*/
 
-async function init() {
+async function initAdminPage() {
 
-    lucide.createIcons();
+    try {
 
+        /*
+         * Khởi tạo Supabase client.
+         */
 
-    // Mặc định +30 ngày
-
-    const defaultExp =
-        new Date();
-
-    defaultExp.setDate(
-        defaultExp.getDate() + 30
-    );
+        initializeSupabase();
 
 
-    document
-        .getElementById("expiredAt")
-        .value =
-            defaultExp
-                .toISOString()
-                .split("T")[0];
+        /*
+         * Kiểm tra session + quyền Admin.
+         */
+
+        const authData =
+            await checkAdminAuth();
 
 
-    toggleClassSelect();
+        /*
+         * Nếu không xác thực được,
+         * checkAdminAuth đã tự xử lý.
+         */
+
+        if (!authData) {
+
+            hideLoading();
+
+            return;
+
+        }
 
 
-    const ok =
-        await checkAdminAuth();
+        /*
+         * Đã là Admin.
+         * Tải toàn bộ dashboard.
+         */
+
+        await loadData();
 
 
-    if (!ok) return;
+    } catch (error) {
 
+        console.error(
+            "initAdminPage:",
+            error
+        );
 
-    await loadDashboard();
+        hideLoading();
+
+        alert(
+            "Không thể khởi động trang Admin:\n\n" +
+            error.message
+        );
+
+    }
 
 }
 
 
-init();
+/*
+============================================================
+ DEFAULT EXPIRY = +30 DAYS
+============================================================
+*/
+
+(function setDefaultExpiry() {
+
+    const input =
+        document.getElementById(
+            "expiredAt"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const date =
+        new Date();
+
+
+    date.setDate(
+        date.getDate() + 30
+    );
+
+
+    input.value =
+        date.toISOString()
+            .split("T")[0];
+
+})();
+
+
+/*
+============================================================
+ INITIALIZE ICONS
+============================================================
+*/
+
+lucide.createIcons();
+
+
+/*
+============================================================
+ START
+============================================================
+*/
+
+initAdminPage();
 
 </script>
 
