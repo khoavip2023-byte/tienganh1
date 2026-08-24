@@ -153,8 +153,9 @@
                 });
 
                 if (authError) {
-                    throw new Error("Số điện thoại / Email hoặc mật khẩu không chính xác!");
-                }
+    console.error("SUPABASE AUTH ERROR:", authError);
+    throw new Error(authError.message);
+}
 
                 // Phân luồng theo vai trò người dùng (role)
                 await redirectByRole(authData.user.id);
